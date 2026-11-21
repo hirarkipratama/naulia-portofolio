@@ -22,10 +22,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.json)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
-            implementation(libs.ktor.serialization.json)
         }
     }
 }
