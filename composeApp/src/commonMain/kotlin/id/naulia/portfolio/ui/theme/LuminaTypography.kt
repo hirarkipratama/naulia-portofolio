@@ -1,14 +1,27 @@
 package id.naulia.portfolio.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 val OutfitFontFamily: FontFamily = FontFamily.SansSerif
 
 object LuminaTypeScale {
+    val heroHeadline = TextStyle(
+        fontFamily = OutfitFontFamily,
+        fontSize = 56.sp,
+        fontWeight = FontWeight.Bold,
+    )
+    val quoteMark = TextStyle(
+        fontFamily = OutfitFontFamily,
+        fontSize = 96.sp,
+        fontWeight = FontWeight.Bold,
+        fontStyle = FontStyle.Italic,
+    )
     val displayLarge = TextStyle(
         fontFamily = OutfitFontFamily,
         fontSize = 40.sp,
@@ -54,7 +67,19 @@ object LuminaTypeScale {
         fontSize = 12.sp,
         fontWeight = FontWeight.Medium,
     )
+    val tabLabel = TextStyle(
+        fontFamily = OutfitFontFamily,
+        fontSize = 10.sp,
+        fontWeight = FontWeight.Medium,
+    )
+    val tabIcon = TextStyle(
+        fontFamily = OutfitFontFamily,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Normal,
+    )
 }
+
+val LocalLuminaTypeScale = staticCompositionLocalOf { LuminaTypeScale }
 
 val LuminaTypography = Typography(
     displayLarge = LuminaTypeScale.displayLarge,

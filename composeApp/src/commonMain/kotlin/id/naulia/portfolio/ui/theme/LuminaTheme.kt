@@ -36,7 +36,10 @@ fun LuminaTheme(content: @Composable () -> Unit) {
         outline = colors.outline,
     )
 
-    CompositionLocalProvider(LocalLuminaColors provides colors) {
+    CompositionLocalProvider(
+        LocalLuminaColors provides colors,
+        LocalLuminaTypeScale provides LuminaTypeScale,
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = LuminaTypography,
