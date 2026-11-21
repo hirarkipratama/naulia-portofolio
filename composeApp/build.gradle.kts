@@ -21,6 +21,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)

@@ -99,7 +99,7 @@ Do NOT add any other targets. Output all files with full content.
 
 > **Rules applied:** R3.7 (theme usage, no hardcoded colors/sizes), R5.1 (package: ui.theme), R1.8 (naming)  
 > **PRD ref:** §5 Design System "Curated Lumina" — palette tokens, Outfit typography, `#ff8e72` coral accent  
-> **PLAN ref:** §1 Project Structure (ui/theme/), SKILL.md §7 (Lumina Color Token Reference)
+> **PLAN ref:** §1 Project Structure (ui`/`theme/), SKILL.md §7 (Lumina Color Token Reference)
 
 ```
 Implement the "Curated Lumina" design system for a Compose Multiplatform (wasmJs) project.
