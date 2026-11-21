@@ -6,6 +6,7 @@ import kotlinx.browser.document
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    injectGlobalStyles()
     val body = requireNotNull(document.body) { "Document body is required to host the Compose viewport" }
     ComposeViewport(body) {
         App()

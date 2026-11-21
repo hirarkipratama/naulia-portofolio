@@ -31,6 +31,7 @@ import id.naulia.portfolio.ui.screens.AboutScreen
 import id.naulia.portfolio.ui.screens.AudioReelScreen
 import id.naulia.portfolio.ui.screens.ContactScreen
 import id.naulia.portfolio.ui.screens.EditorialWorksScreen
+import id.naulia.portfolio.ui.screens.FooterSection
 import id.naulia.portfolio.ui.screens.HeroScreen
 import id.naulia.portfolio.ui.screens.McStageScreen
 import id.naulia.portfolio.ui.theme.LuminaDimens
@@ -88,6 +89,7 @@ fun App() {
                 SectionAnchor(NavSection.Contact, scrollCoordinator) {
                     ContactScreen(contactViewModel = contactViewModel)
                 }
+                FooterSection(navigator = navigator)
                 if (isMobile) {
                     Spacer(Modifier.height(LuminaDimens.size.bottomBarHeight))
                 }
