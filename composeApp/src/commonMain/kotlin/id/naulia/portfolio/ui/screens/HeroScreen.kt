@@ -6,6 +6,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -29,11 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.navigation.Navigator
 import id.naulia.portfolio.platform.prefersReducedMotion
@@ -167,23 +172,35 @@ private fun HeroPortrait(
     val portraitBrush = remember(colors) {
         Brush.linearGradient(listOf(colors.primary, colors.primaryVariant))
     }
+    val portraitBitmap = rememberImageBitmap(HeroStrings.PORTRAIT_ASSET)
+
     Box(
         modifier = modifier
             .size(
                 width = LuminaDimens.size.portraitWidth,
                 height = LuminaDimens.size.portraitHeight,
             )
+            .clip(RoundedCornerShape(LuminaDimens.spacing.lg))
             .background(portraitBrush, RoundedCornerShape(LuminaDimens.spacing.lg))
             .semantics { contentDescription = HeroStrings.PORTRAIT_DESCRIPTION },
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = HeroStrings.PORTRAIT_PLACEHOLDER,
-            style = LocalLuminaTypeScale.current.headlineMedium,
-            color = colors.onPrimary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(LuminaDimens.spacing.lg),
-        )
+        if (portraitBitmap != null) {
+            Image(
+                bitmap = portraitBitmap,
+                contentDescription = HeroStrings.PORTRAIT_DESCRIPTION,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        } else {
+            Text(
+                text = HeroStrings.PORTRAIT_PLACEHOLDER,
+                style = LocalLuminaTypeScale.current.headlineMedium,
+                color = colors.onPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(LuminaDimens.spacing.lg),
+            )
+        }
     }
 }
 
@@ -206,6 +223,7 @@ object HeroStrings {
     const val SECONDARY_CTA = "Jelajahi Demo Audio"
     const val SCROLL_INDICATOR = "⌄"
     const val SCROLL_INDICATOR_DESCRIPTION = "Gulir ke bawah untuk menjelajahi portofolio"
+    const val PORTRAIT_ASSET = "images/hero/naulia_hero.webp"
     const val PORTRAIT_PLACEHOLDER = "Naulia Zahra"
     const val PORTRAIT_DESCRIPTION = "Foto potret Naulia Zahra"
     const val MIN_INDICATOR_ALPHA = 0.3f

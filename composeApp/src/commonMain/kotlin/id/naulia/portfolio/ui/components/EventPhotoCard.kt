@@ -1,14 +1,16 @@
 package id.naulia.portfolio.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,10 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import id.naulia.portfolio.data.model.McEvent
+import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 
@@ -36,6 +40,7 @@ fun EventPhotoCard(
     val photoBrush = remember(colors) {
         Brush.linearGradient(listOf(colors.surface, colors.primaryVariant))
     }
+    val photoBitmap = rememberImageBitmap(event.photoAsset)
 
     Card(
         modifier = modifier,
@@ -51,13 +56,22 @@ fun EventPhotoCard(
                 .semantics { contentDescription = EventPhotoCardStrings.photoDescription(event.eventName) },
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = event.eventName,
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.onPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(LuminaDimens.spacing.md),
-            )
+            if (photoBitmap != null) {
+                Image(
+                    bitmap = photoBitmap,
+                    contentDescription = EventPhotoCardStrings.photoDescription(event.eventName),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Text(
+                    text = event.eventName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.onPrimary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(LuminaDimens.spacing.md),
+                )
+            }
             Surface(
                 modifier = Modifier
                     .align(Alignment.TopEnd)

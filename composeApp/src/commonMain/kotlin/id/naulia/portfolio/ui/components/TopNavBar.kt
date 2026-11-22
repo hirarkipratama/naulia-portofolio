@@ -1,7 +1,10 @@
 package id.naulia.portfolio.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -70,10 +73,10 @@ fun TopNavBar(
                         contentDescription = TopNavStrings.OPEN_MENU
                     },
                 ) {
-                    Text(
-                        text = TopNavStrings.MENU_ICON,
-                        style = LocalLuminaTypeScale.current.titleLarge,
-                        color = colors.onBackground,
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = TopNavStrings.OPEN_MENU,
+                        tint = colors.onBackground,
                     )
                 }
                 DropdownMenu(
@@ -126,5 +129,4 @@ fun TopNavBar(
 object TopNavStrings {
     const val WORDMARK = "Naulia Zahra"
     const val OPEN_MENU = "Buka menu navigasi"
-    const val MENU_ICON = "☰"
 }

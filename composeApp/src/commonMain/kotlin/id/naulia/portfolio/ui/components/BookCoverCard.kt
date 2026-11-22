@@ -2,6 +2,7 @@ package id.naulia.portfolio.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,11 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import id.naulia.portfolio.data.model.Book
+import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.platform.prefersReducedMotion
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -54,6 +58,7 @@ fun BookCoverCard(
     val coverBrush = remember(colors) {
         Brush.linearGradient(listOf(colors.secondary, colors.tertiary))
     }
+    val coverBitmap = rememberImageBitmap(book.coverAsset)
 
     Card(
         modifier = modifier
@@ -74,13 +79,22 @@ fun BookCoverCard(
                 .semantics { contentDescription = BookCoverCardStrings.coverDescription(book.title) },
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = book.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.onPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(LuminaDimens.spacing.md),
-            )
+            if (coverBitmap != null) {
+                Image(
+                    bitmap = coverBitmap,
+                    contentDescription = BookCoverCardStrings.coverDescription(book.title),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.onPrimary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(LuminaDimens.spacing.md),
+                )
+            }
         }
         Column(modifier = Modifier.padding(LuminaDimens.spacing.md)) {
             Surface(
@@ -109,10 +123,6 @@ fun BookCoverCard(
             Surface(
                 shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
                 color = colors.surface,
-                border = androidx.compose.foundation.BorderStroke(
-                    LuminaDimens.size.thinBorder,
-                    colors.outline,
-                ),
             ) {
                 Text(
                     text = book.ageRange.displayName,
@@ -125,11 +135,14 @@ fun BookCoverCard(
                 )
             }
             Spacer(Modifier.height(LuminaDimens.spacing.sm))
-            FlowRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs)) {
+            FlowRow(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+            ) {
                 book.roles.forEach { role ->
                     Surface(
                         shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
-                        color = colors.surface,
+                        color = colors.surfaceVariant,
                     ) {
                         Text(
                             text = role.displayBadge,
@@ -143,21 +156,15 @@ fun BookCoverCard(
                     }
                 }
             }
-            Spacer(Modifier.height(LuminaDimens.spacing.sm))
-            Text(
-                text = book.year.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurface,
-            )
         }
     }
 }
 
-private const val COVER_ASPECT_RATIO = 0.75f
 private const val HOVER_SCALE = 1.03f
-private const val DEFAULT_SCALE = 1f
+private const val DEFAULT_SCALE = 1.0f
+private const val COVER_ASPECT_RATIO = 3f / 4f
 private const val MAX_TITLE_LINES = 2
 
 private object BookCoverCardStrings {
-    fun coverDescription(title: String): String = "Book cover: $title"
+    fun coverDescription(title: String): String = "Sampul buku: $title"
 }
