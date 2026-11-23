@@ -6,14 +6,13 @@ private const val GLOBAL_STYLE_SELECTOR = "style[data-naulia-global-styles]"
 
 private val GLOBAL_STYLES = """
 * { box-sizing: border-box; margin: 0; }
-html { scroll-behavior: smooth; font-family: 'Outfit', sans-serif; }
+html { scroll-behavior: smooth; font-family: 'Outfit', sans-serif; scrollbar-width: none; -ms-overflow-style: none; }
+html, body { overflow: hidden; }
 :focus-visible { outline: 2px solid #FF8E72; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #FFF8F3; }
-::-webkit-scrollbar-thumb { background: #FF8E72; border-radius: 3px; }
+::-webkit-scrollbar { display: none; width: 0; height: 0; }
 """.trimIndent()
 
 fun injectGlobalStyles() {
