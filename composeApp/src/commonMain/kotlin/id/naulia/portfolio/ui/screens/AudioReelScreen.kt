@@ -24,6 +24,7 @@ import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.rememberIsMobile
 import id.naulia.portfolio.viewmodel.AudioViewModel
 
 @Composable
@@ -34,6 +35,11 @@ fun AudioReelScreen(
     val uiState by audioViewModel.uiState.collectAsState()
     val reducedMotion = remember { prefersReducedMotion() }
     val colors = LocalLuminaColors.current
+    val isMobile = rememberIsMobile()
+    val columns = if (isMobile) SINGLE_COLUMN else AUDIO_DESKTOP_COLUMNS
+    val trackRows = remember(uiState.filteredTracks, columns) {
+        uiState.filteredTracks.chunked(columns)
+    }
 
     Column(
         modifier = modifier
@@ -47,7 +53,7 @@ fun AudioReelScreen(
             title = AudioReelStrings.TITLE,
             subtitle = AudioReelStrings.SUBTITLE,
             eyebrow = AudioReelStrings.EYEBROW,
-            eyebrowIcon = LuminaIcons.Mic,
+            eyebrowIcon = LuminaIcons.GraphicEq,
             eyebrowTone = PillTone.Tertiary,
         )
         Row(
@@ -68,23 +74,37 @@ fun AudioReelScreen(
         if (uiState.isLoading) {
             CircularProgressIndicator(color = colors.primary)
         }
-        uiState.filteredTracks.forEach { track ->
-            AudioTrackCard(
-                track = track,
-                isActive = uiState.activeTrackId == track.id,
-                isPlaying = uiState.isPlaying,
-                progressSec = uiState.progressSec,
-                durationSec = uiState.durationSec,
-                reducedMotion = reducedMotion,
-                onTogglePlay = { audioViewModel.togglePlay(track) },
-                onSeek = { seconds -> audioViewModel.seekTo(seconds) },
-            )
+        trackRows.forEach { rowTracks ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.gutter.desktop),
+            ) {
+                rowTracks.forEach { track ->
+                    AudioTrackCard(
+                        track = track,
+                        isActive = uiState.activeTrackId == track.id,
+                        isPlaying = uiState.isPlaying,
+                        progressSec = uiState.progressSec,
+                        durationSec = uiState.durationSec,
+                        reducedMotion = reducedMotion,
+                        onTogglePlay = { audioViewModel.togglePlay(track) },
+                        onSeek = { seconds -> audioViewModel.seekTo(seconds) },
+                        modifier = Modifier.weight(TRACK_CARD_WEIGHT),
+                    )
+                }
+            }
+            Spacer(Modifier.height(LuminaDimens.spacing.md))
         }
     }
 }
 
+private const val SINGLE_COLUMN = 1
+private const val AUDIO_DESKTOP_COLUMNS = 2
+private const val TRACK_CARD_WEIGHT = 1f
+
 private object AudioReelStrings {
-    const val EYEBROW = "REEL SUARA & BUKU SUARA"
-    const val TITLE = "Buku Suara & Demo VO"
-    const val SUBTITLE = "Dengarkan cuplikan buku suara, narasi sains, dan karakter suara Naulia Zahra"
+    const val EYEBROW = "🎙️ REEL SUARA & BUKU SUARA"
+    const val TITLE = "Karya Pilihan Buku Suara & VO"
+    const val SUBTITLE =
+        "Penceritaan imersif, karakter suara animasi, dan narasi edukatif untuk imajinasi anak-anak."
 }

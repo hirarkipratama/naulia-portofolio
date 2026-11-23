@@ -484,4 +484,60 @@ object LuminaIcons {
             close()
         }
     }.build()
+
+    val GraphicEq: ImageVector = ImageVector.Builder(
+        name = "GraphicEq",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(2f, 9f)
+            horizontalLineTo(4f)
+            verticalLineTo(15f)
+            horizontalLineTo(2f)
+            close()
+            moveTo(6.5f, 5f)
+            horizontalLineTo(8.5f)
+            verticalLineTo(19f)
+            horizontalLineTo(6.5f)
+            close()
+            moveTo(11f, 8f)
+            horizontalLineTo(13f)
+            verticalLineTo(16f)
+            horizontalLineTo(11f)
+            close()
+            moveTo(15.5f, 3f)
+            horizontalLineTo(17.5f)
+            verticalLineTo(21f)
+            horizontalLineTo(15.5f)
+            close()
+            moveTo(20f, 10f)
+            horizontalLineTo(22f)
+            verticalLineTo(14f)
+            horizontalLineTo(20f)
+            close()
+        }
+    }.build()
+
+    val Schedule: ImageVector = ImageVector.Builder(
+        name = "Schedule",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = null, stroke = SolidColor(Color.White), strokeLineWidth = 1.8f) {
+            moveTo(12f, 3f)
+            curveTo(16.97f, 3f, 21f, 7.03f, 21f, 12f)
+            curveTo(21f, 16.97f, 16.97f, 21f, 12f, 21f)
+            curveTo(7.03f, 21f, 3f, 16.97f, 3f, 12f)
+            curveTo(3f, 7.03f, 7.03f, 3f, 12f, 3f)
+            close()
+            moveTo(12f, 7f)
+            verticalLineTo(12f)
+            lineTo(15.5f, 14f)
+        }
+    }.build()
 }

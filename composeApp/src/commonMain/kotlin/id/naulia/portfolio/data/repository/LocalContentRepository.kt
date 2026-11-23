@@ -18,6 +18,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 145,
             assetUrl = "audio/Audiobook_Sepatu_Berkucing.mp3",
             coverAsset = "images/audio/sepatu_berkucing.webp",
+            description = "Cerita dongeng hangat tentang persahabatan dan keberanian, dibawakan dengan " +
+                "karakter suara yang ceria untuk pendengar cilik.",
             tags = listOf("Cerita Dongeng", "Karakter Ekspresif"),
         ),
         AudioTrack(
@@ -27,6 +29,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 187,
             assetUrl = "audio/Audiobook_Kok_Tidak_Berbunga.mp3",
             coverAsset = "images/audio/kok_tidak_berbunga.webp",
+            description = "Sains anak yang menjawab rasa ingin tahu tentang tanaman lewat narasi lembut " +
+                "dan analogi yang mudah dibayangkan.",
             tags = listOf("Sains Anak", "Tumbuhan"),
         ),
         AudioTrack(
@@ -36,6 +40,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 135,
             assetUrl = "audio/LPBD_Nikola_Tesla.mp3",
             coverAsset = "images/audio/lpbd_nikola_tesla.webp",
+            description = "Biografi tokoh yang memadukan fakta sains dan alur cerita untuk " +
+                "memperkenalkan penemu legendaris kepada pembaca muda.",
             tags = listOf("Biografi Tokoh", "Sains"),
         ),
         AudioTrack(
@@ -45,6 +51,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 205,
             assetUrl = "audio/LPBD_Charles_Darwin.mp3",
             coverAsset = "images/audio/lpbd_charles_darwin.webp",
+            description = "Perjalanan evolusi dan alam disajikan sebagai narasi edukatif yang " +
+                "memantik rasa ingin tahu akan dunia sekitar.",
             tags = listOf("Biografi", "Evolusi & Alam"),
         ),
         AudioTrack(
@@ -54,6 +62,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 228,
             assetUrl = "audio/AudioBook_LPBD_Hans_Christian_Andersen.mp3",
             coverAsset = "images/audio/lpbd_hans_christian_andersen.webp",
+            description = "Kisah hidup sastrawan dongeng terkenal dinuturkan dengan kehangatan " +
+                "dan ritme yang memikat anak-anak.",
             tags = listOf("Biografi Sastrawan", "Cerita"),
         ),
         AudioTrack(
@@ -63,6 +73,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 210,
             assetUrl = "audio/Audiobook_Aku_Bisa_Jadi_Apa_Hobiku_Bertualang.mp3",
             coverAsset = "images/audio/abja_hobiku_bertualang.webp",
+            description = "Petualangan imajinatif tentang profesi dan hobi, mengajak anak membayangkan " +
+                "masa depan mereka dengan gembira.",
             tags = listOf("Petualangan", "Eksplorasi"),
         ),
         AudioTrack(
@@ -72,6 +84,8 @@ class LocalContentRepository : ContentRepository {
             durationSec = 96,
             assetUrl = "audio/Announcement_Rimba_Kata.mp3",
             coverAsset = "images/audio/rimba_kata.webp",
+            description = "Voice over pengumuman dengan karakter vokal tegas dan ramah untuk " +
+                "kebutuhan acara, kampanye, dan materi edukasi.",
             tags = listOf("Voice Over", "Karakter"),
         ),
     )
