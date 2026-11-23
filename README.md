@@ -13,9 +13,7 @@ This is a Kotlin Multiplatform project targeting Web.
 
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
 
-- Web app:
-  - Wasm target (faster, modern browsers): `./gradlew :webApp:wasmJsBrowserDevelopmentRun`
-  - JS target (slower, supports older browsers): `./gradlew :webApp:jsBrowserDevelopmentRun`
+- Web app (`:composeApp`, wasmJs target): `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`
 
 ### Running tests
 
