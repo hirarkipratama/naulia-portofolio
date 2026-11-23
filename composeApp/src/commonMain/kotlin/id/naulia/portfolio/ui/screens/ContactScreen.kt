@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.data.model.ServiceType
 import id.naulia.portfolio.platform.openEmail
 import id.naulia.portfolio.platform.openWhatsApp
@@ -31,7 +36,6 @@ import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.components.SelectableServicePill
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
-import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.viewmodel.ContactViewModel
 import id.naulia.portfolio.viewmodel.SubmissionState
 
@@ -160,12 +164,24 @@ fun ContactScreen(
                 onClick = { openWhatsApp(ContactStrings.WHATSAPP_NUMBER, ContactStrings.WHATSAPP_MESSAGE) },
                 modifier = Modifier.weight(DIRECT_CONTACT_WEIGHT),
             ) {
+                Icon(
+                    imageVector = LuminaIcons.Chat,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(LuminaDimens.spacing.xs))
                 Text(ContactStrings.WHATSAPP_LABEL, style = MaterialTheme.typography.labelLarge)
             }
             OutlinedButton(
                 onClick = { openEmail(ContactStrings.EMAIL_ADDRESS) },
                 modifier = Modifier.weight(DIRECT_CONTACT_WEIGHT),
             ) {
+                Icon(
+                    imageVector = LuminaIcons.Mail,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(LuminaDimens.spacing.xs))
                 Text(ContactStrings.EMAIL_LABEL, style = MaterialTheme.typography.labelLarge)
             }
         }
@@ -221,9 +237,11 @@ private fun SuccessMessage(
             modifier = Modifier.padding(LuminaDimens.spacing.lg),
             horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = ContactStrings.SUCCESS_ICON,
-                style = LocalLuminaTypeScale.current.displayLarge,
+            Icon(
+                imageVector = LuminaIcons.CheckCircle,
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(LuminaDimens.spacing.xxl),
             )
             Spacer(Modifier.height(LuminaDimens.spacing.sm))
             Text(
@@ -262,15 +280,14 @@ object ContactStrings {
     const val MESSAGE_LABEL = "Pesan Tambahan (Opsional)"
     const val SUBMIT_LABEL = "Kirim Permintaan Kolaborasi"
     const val SUBMITTING_LABEL = "Mengirim…"
-    const val SUBMITTED_LABEL = "Terkirim ✓"
+    const val SUBMITTED_LABEL = "Terkirim"
     const val RETRY_LABEL = "Coba Lagi"
     const val RESET_LABEL = "Kirim Permintaan Lain"
-    const val WHATSAPP_LABEL = "💬 Chat via WhatsApp"
-    const val EMAIL_LABEL = "✉️ Kirim Email"
+    const val WHATSAPP_LABEL = "Chat via WhatsApp"
+    const val EMAIL_LABEL = "Kirim Email"
     const val WHATSAPP_NUMBER = "+6281234567890"
     const val WHATSAPP_MESSAGE = "Halo Naulia, saya ingin berkolaborasi..."
     const val EMAIL_ADDRESS = "naulia@email.com"
-    const val SUCCESS_ICON = "✅"
     const val SUCCESS_MESSAGE = "Terima kasih! Naulia akan menghubungi Anda dalam 1×24 jam."
     const val SUCCESS_DESCRIPTION = "Permintaan kolaborasi berhasil dikirim"
     const val ERROR_DESCRIPTION = "Permintaan kolaborasi gagal dikirim"

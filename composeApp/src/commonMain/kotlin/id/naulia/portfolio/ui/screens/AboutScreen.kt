@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +29,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -140,7 +143,12 @@ fun AboutScreen(
                         ),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = capability.icon, style = MaterialTheme.typography.labelLarge)
+                        Icon(
+                            imageVector = capability.icon,
+                            contentDescription = null,
+                            tint = colors.onPrimary,
+                            modifier = Modifier.size(18.dp),
+                        )
                         Spacer(Modifier.width(LuminaDimens.spacing.xs))
                         Text(
                             text = capability.label,

@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.data.model.AudioTrack
 import id.naulia.portfolio.data.model.formattedDuration
 import id.naulia.portfolio.image.rememberImageBitmap
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
-import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 
 @Composable
 fun AudioTrackCard(
@@ -107,15 +105,16 @@ fun AudioTrackCard(
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         if (isActivePlaying) {
-                            Text(
-                                text = AudioTrackCardStrings.PAUSE_ICON,
-                                style = LocalLuminaTypeScale.current.labelLarge,
-                                color = colors.onPrimary,
+                            Icon(
+                                imageVector = LuminaIcons.Pause,
+                                contentDescription = null,
+                                tint = colors.onPrimary,
+                                modifier = Modifier.size(24.dp),
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = AudioTrackCardStrings.playDescription(track.title),
+                                imageVector = LuminaIcons.Play,
+                                contentDescription = null,
                                 tint = colors.primary,
                                 modifier = Modifier.size(24.dp),
                             )
@@ -190,8 +189,6 @@ fun AudioTrackCard(
 private const val TRACK_INFO_WEIGHT = 1f
 
 object AudioTrackCardStrings {
-    const val PLAY_ICON = "▶"
-    const val PAUSE_ICON = "⏸"
     const val TAG_SEPARATOR = " · "
 
     fun playDescription(title: String): String = "Play $title"

@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,8 +29,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.data.model.McEvent
 import id.naulia.portfolio.image.rememberImageBitmap
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 
@@ -79,15 +84,26 @@ fun EventPhotoCard(
                 shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
                 color = colors.primary,
             ) {
-                Text(
-                    text = EventPhotoCardStrings.attendees(event.estimatedAttendees),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colors.onPrimary,
+                Row(
                     modifier = Modifier.padding(
                         horizontal = LuminaDimens.spacing.sm,
                         vertical = LuminaDimens.spacing.xs,
                     ),
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = LuminaIcons.Users,
+                        contentDescription = null,
+                        tint = colors.onPrimary,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(Modifier.width(LuminaDimens.spacing.xs))
+                    Text(
+                        text = EventPhotoCardStrings.attendees(event.estimatedAttendees),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colors.onPrimary,
+                    )
+                }
             }
         }
         Column(modifier = Modifier.padding(LuminaDimens.spacing.md)) {
@@ -128,7 +144,7 @@ fun EventPhotoCard(
 private const val PHOTO_ASPECT_RATIO = 16f / 9f
 
 private object EventPhotoCardStrings {
-    fun attendees(count: Int): String = "👥 $count+"
+    fun attendees(count: Int): String = "$count+"
 
     fun metadata(date: String, venue: String, city: String): String = "$date · $venue, $city"
 

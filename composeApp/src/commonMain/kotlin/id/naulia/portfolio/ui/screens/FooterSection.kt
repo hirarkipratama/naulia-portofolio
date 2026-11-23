@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,8 +23,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.navigation.Navigator
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
@@ -112,11 +117,20 @@ private fun FooterBrand(
             color = colors.background,
         )
         Spacer(Modifier.height(LuminaDimens.spacing.xs))
-        Text(
-            text = FooterStrings.LOCATION,
-            style = typeScale.bodyMedium,
-            color = colors.background.copy(alpha = FOOTER_MUTED_ALPHA),
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = LuminaIcons.Globe,
+                contentDescription = null,
+                tint = colors.background.copy(alpha = FOOTER_MUTED_ALPHA),
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(Modifier.width(LuminaDimens.spacing.xs))
+            Text(
+                text = FooterStrings.LOCATION,
+                style = typeScale.bodyMedium,
+                color = colors.background.copy(alpha = FOOTER_MUTED_ALPHA),
+            )
+        }
     }
 }
 
@@ -193,7 +207,7 @@ private const val FOOTER_DIVIDER_ALPHA = 0.3f
 object FooterStrings {
     const val WORDMARK = "Naulia Zahra"
     const val TAGLINE = "Editor · MC · Suara"
-    const val LOCATION = "Jakarta & Daring 🌐"
+    const val LOCATION = "Jakarta & Daring"
     const val NAVIGATION_HEADING = "Navigasi"
     const val CONTACT_HEADING = "Hubungi"
     const val INSTAGRAM_HANDLE = "@nauliazahra"
