@@ -21,6 +21,7 @@ object BioStrings {
     const val TOGGLE_ENGLISH = "EN"
     const val TOGGLE_SEPARATOR = " | "
     const val TOGGLE_DESCRIPTION = "Alihkan bahasa konten antara Bahasa Indonesia dan English"
+    const val EYEBROW = "FILOSOFI EDITORIAL"
     const val TITLE_BAHASA = "Filosofi & Keahlian"
     const val TITLE_ENGLISH = "Philosophy & Expertise"
     const val SUBTITLE_BAHASA = "Kata, panggung, dan suara dalam satu perjalanan kreatif"

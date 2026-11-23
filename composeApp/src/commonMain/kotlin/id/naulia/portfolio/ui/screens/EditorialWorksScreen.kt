@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,9 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import id.naulia.portfolio.ui.components.BookCoverCard
+import id.naulia.portfolio.ui.components.PillTone
 import id.naulia.portfolio.ui.components.SectionHeader
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.ui.theme.rememberWindowWidth
 import id.naulia.portfolio.viewmodel.CmsViewModel
 
@@ -39,19 +41,26 @@ fun EditorialWorksScreen(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.spacing.xl,
+                horizontal = LuminaDimens.margin.mobile,
                 vertical = LuminaDimens.spacing.xxl,
             ),
     ) {
         SectionHeader(
             title = EditorialWorksStrings.TITLE,
             subtitle = EditorialWorksStrings.SUBTITLE,
+            eyebrow = EditorialWorksStrings.EYEBROW,
+            eyebrowIcon = LuminaIcons.Book,
+            eyebrowTone = PillTone.Secondary,
         )
         if (contentState.isLoading) {
             CircularProgressIndicator(color = colors.primary)
         }
         contentState.errorMessage?.let { message ->
-            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+            Text(
+                text = message,
+                style = LocalLuminaTypeScale.current.bodySm,
+                color = colors.onSurfaceVariant,
+            )
         }
 
         val books = contentState.books
@@ -80,13 +89,13 @@ fun EditorialWorksScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stat.value,
-                        style = MaterialTheme.typography.displayLarge,
+                        style = LocalLuminaTypeScale.current.headlineLg,
                         color = colors.primary,
                     )
                     Text(
                         text = stat.label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.onSurface,
+                        style = LocalLuminaTypeScale.current.labelMd,
+                        color = colors.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -108,6 +117,7 @@ private const val DESKTOP_COLUMNS = 3
 private const val BOOK_WEIGHT = 1f
 
 private object EditorialWorksStrings {
+    const val EYEBROW = "LITERATUR ANAK & SAINS"
     const val TITLE = "Pilihan Karya Editorial & Buku"
     const val SUBTITLE = "Buku Anak & STEM yang Pernah Diedit"
 }

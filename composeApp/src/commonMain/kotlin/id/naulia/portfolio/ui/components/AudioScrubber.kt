@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -17,6 +16,7 @@ import androidx.compose.ui.semantics.semantics
 import id.naulia.portfolio.data.model.toTimeString
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 
 @Composable
 fun AudioScrubber(
@@ -41,7 +41,7 @@ fun AudioScrubber(
             colors = SliderDefaults.colors(
                 thumbColor = colors.primary,
                 activeTrackColor = colors.primary,
-                inactiveTrackColor = colors.outline,
+                inactiveTrackColor = colors.outlineVariant,
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -51,14 +51,14 @@ fun AudioScrubber(
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = progressSec.toTimeString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurface,
+                style = LocalLuminaTypeScale.current.labelSm,
+                color = colors.onSurfaceVariant,
             )
             Spacer(Modifier.weight(1f))
             Text(
                 text = durationSec.toTimeString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurface,
+                style = LocalLuminaTypeScale.current.labelSm,
+                color = colors.onSurfaceVariant,
             )
         }
     }

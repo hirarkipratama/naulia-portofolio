@@ -22,10 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,6 +43,8 @@ import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.navigation.Navigator
 import id.naulia.portfolio.platform.prefersReducedMotion
 import id.naulia.portfolio.ui.components.CredentialChip
+import id.naulia.portfolio.ui.components.LuminaPrimaryButton
+import id.naulia.portfolio.ui.components.LuminaSecondaryButton
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -88,7 +88,7 @@ fun HeroScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = LuminaDimens.spacing.lg,
+                        horizontal = LuminaDimens.margin.mobile,
                         vertical = LuminaDimens.spacing.xl,
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,8 +101,8 @@ fun HeroScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = LuminaDimens.spacing.xl,
-                        vertical = LuminaDimens.spacing.xxl,
+                        horizontal = LuminaDimens.margin.desktop,
+                        vertical = LuminaDimens.spacing.xl,
                     ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -131,38 +131,56 @@ private fun HeroCopy(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
+    val isMobile = rememberIsMobile()
     Column(modifier = modifier) {
         FlowRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm)) {
-            CredentialChip(label = HeroStrings.CREDENTIAL_PARTNER, icon = HeroStrings.CREDENTIAL_PARTNER_ICON)
-            CredentialChip(label = HeroStrings.CREDENTIAL_TITLES, icon = HeroStrings.CREDENTIAL_TITLES_ICON)
-            CredentialChip(label = HeroStrings.CREDENTIAL_VO, icon = HeroStrings.CREDENTIAL_VO_ICON)
+            CredentialChip(
+                label = HeroStrings.CREDENTIAL_PARTNER,
+                icon = HeroStrings.CREDENTIAL_PARTNER_ICON,
+                iconTint = colors.secondary,
+            )
+            CredentialChip(
+                label = HeroStrings.CREDENTIAL_TITLES,
+                icon = HeroStrings.CREDENTIAL_TITLES_ICON,
+                iconTint = colors.primary,
+            )
+            CredentialChip(
+                label = HeroStrings.CREDENTIAL_VO,
+                icon = HeroStrings.CREDENTIAL_VO_ICON,
+                iconTint = colors.tertiary,
+            )
         }
         Spacer(Modifier.height(LuminaDimens.spacing.lg))
         Text(
             text = HeroStrings.HEADLINE,
-            style = LocalLuminaTypeScale.current.heroHeadline,
-            color = colors.onBackground,
+            style = if (isMobile) type.displayHeroMobile else type.displayHero,
+            color = colors.onSurface,
         )
         Text(
             text = HeroStrings.SUBHEADLINE,
-            style = MaterialTheme.typography.titleLarge,
+            style = type.headlineSm,
             color = colors.primary,
         )
         Spacer(Modifier.height(LuminaDimens.spacing.md))
         Text(
             text = HeroStrings.DESCRIPTION,
-            style = MaterialTheme.typography.bodyLarge,
-            color = colors.onSurface,
+            style = type.bodyLg,
+            color = colors.onSurfaceVariant,
         )
         Spacer(Modifier.height(LuminaDimens.spacing.lg))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = { navigator.navigateTo(NavSection.Contact) }) {
-                Text(text = HeroStrings.PRIMARY_CTA, style = LocalLuminaTypeScale.current.labelLarge)
-            }
+            LuminaPrimaryButton(
+                label = HeroStrings.PRIMARY_CTA,
+                onClick = { navigator.navigateTo(NavSection.Contact) },
+                icon = LuminaIcons.Chat,
+            )
             Spacer(Modifier.width(LuminaDimens.spacing.sm))
-            OutlinedButton(onClick = { navigator.navigateTo(NavSection.Audio) }) {
-                Text(text = HeroStrings.SECONDARY_CTA, style = LocalLuminaTypeScale.current.labelLarge)
-            }
+            LuminaSecondaryButton(
+                label = HeroStrings.SECONDARY_CTA,
+                onClick = { navigator.navigateTo(NavSection.Audio) },
+                icon = LuminaIcons.Play,
+            )
         }
     }
 }
@@ -173,9 +191,10 @@ private fun HeroPortrait(
 ) {
     val colors = LocalLuminaColors.current
     val portraitBrush = remember(colors) {
-        Brush.linearGradient(listOf(colors.primary, colors.primaryVariant))
+        Brush.linearGradient(listOf(colors.surfaceContainerHigh, colors.primaryContainer))
     }
     val portraitBitmap = rememberImageBitmap(HeroStrings.PORTRAIT_ASSET)
+    val shape = RoundedCornerShape(LuminaDimens.cornerRadius.card)
 
     Box(
         modifier = modifier
@@ -183,8 +202,14 @@ private fun HeroPortrait(
                 width = LuminaDimens.size.portraitWidth,
                 height = LuminaDimens.size.portraitHeight,
             )
-            .clip(RoundedCornerShape(LuminaDimens.spacing.lg))
-            .background(portraitBrush, RoundedCornerShape(LuminaDimens.spacing.lg))
+            .shadow(
+                elevation = LuminaDimens.elevation.level3,
+                shape = shape,
+                ambientColor = colors.shadowWarm,
+                spotColor = colors.shadowWarm,
+            )
+            .clip(shape)
+            .background(portraitBrush, shape)
             .semantics { contentDescription = HeroStrings.PORTRAIT_DESCRIPTION },
         contentAlignment = Alignment.Center,
     ) {
@@ -199,7 +224,7 @@ private fun HeroPortrait(
             Text(
                 text = HeroStrings.PORTRAIT_PLACEHOLDER,
                 style = LocalLuminaTypeScale.current.headlineMedium,
-                color = colors.onPrimary,
+                color = colors.onPrimaryContainer,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(LuminaDimens.spacing.lg),
             )

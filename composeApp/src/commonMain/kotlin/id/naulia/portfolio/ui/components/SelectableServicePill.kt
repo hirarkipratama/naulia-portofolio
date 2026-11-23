@@ -1,9 +1,9 @@
 package id.naulia.portfolio.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.stateDescription
 import id.naulia.portfolio.data.model.ServiceType
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 
 @Composable
 fun SelectableServicePill(
@@ -26,21 +27,22 @@ fun SelectableServicePill(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) colors.primary else colors.surface,
+        targetValue = if (isSelected) colors.primary else colors.surfaceContainerLow,
     )
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) colors.onPrimary else colors.primary,
+        targetValue = if (isSelected) colors.onPrimary else colors.onSurfaceVariant,
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) colors.primary else colors.outlineVariant,
     )
 
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
         color = backgroundColor,
-        border = androidx.compose.foundation.BorderStroke(
-            LuminaDimens.size.accentBorder,
-            colors.primary,
-        ),
+        border = BorderStroke(LuminaDimens.size.thinBorder, borderColor),
         modifier = modifier.semantics {
             role = Role.Checkbox
             stateDescription = if (isSelected) {
@@ -53,7 +55,7 @@ fun SelectableServicePill(
     ) {
         Text(
             text = service.labelBahasa,
-            style = MaterialTheme.typography.labelLarge,
+            style = type.labelMd,
             color = textColor,
             modifier = Modifier.padding(
                 horizontal = LuminaDimens.spacing.md,

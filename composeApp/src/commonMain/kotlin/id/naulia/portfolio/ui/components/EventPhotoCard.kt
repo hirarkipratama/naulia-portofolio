@@ -4,59 +4,57 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.data.model.McEvent
 import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EventPhotoCard(
     event: McEvent,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     val photoBrush = remember(colors) {
-        Brush.linearGradient(listOf(colors.surface, colors.primaryVariant))
+        Brush.linearGradient(listOf(colors.surfaceContainerHigh, colors.primaryContainer))
     }
     val photoBitmap = rememberImageBitmap(event.photoAsset)
 
-    Card(
+    LuminaCard(
         modifier = modifier,
-        shape = RoundedCornerShape(LuminaDimens.cornerRadius.card),
-        colors = CardDefaults.cardColors(containerColor = colors.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = LuminaDimens.size.cardElevation),
+        contentPadding = PaddingValues(LuminaDimens.spacing.sm),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PHOTO_ASPECT_RATIO)
+                .clip(RoundedCornerShape(LuminaDimens.cornerRadius.media))
                 .background(photoBrush)
                 .semantics { contentDescription = EventPhotoCardStrings.photoDescription(event.eventName) },
             contentAlignment = Alignment.Center,
@@ -72,69 +70,42 @@ fun EventPhotoCard(
                 Text(
                     text = event.eventName,
                     style = MaterialTheme.typography.titleMedium,
-                    color = colors.onPrimary,
+                    color = colors.onSurface,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(LuminaDimens.spacing.md),
                 )
             }
-            Surface(
+            StatusPill(
+                label = EventPhotoCardStrings.attendees(event.estimatedAttendees),
+                icon = LuminaIcons.Users,
+                tone = PillTone.Primary,
+                showPulseDot = false,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(LuminaDimens.spacing.sm),
-                shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
-                color = colors.primary,
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = LuminaDimens.spacing.sm,
-                        vertical = LuminaDimens.spacing.xs,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = LuminaIcons.Users,
-                        contentDescription = null,
-                        tint = colors.onPrimary,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Spacer(Modifier.width(LuminaDimens.spacing.xs))
-                    Text(
-                        text = EventPhotoCardStrings.attendees(event.estimatedAttendees),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colors.onPrimary,
-                    )
-                }
-            }
+            )
         }
-        Column(modifier = Modifier.padding(LuminaDimens.spacing.md)) {
+        Spacer(Modifier.height(LuminaDimens.spacing.sm))
+        Column(
+            modifier = Modifier.padding(horizontal = LuminaDimens.spacing.xs),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+        ) {
             Text(
                 text = event.eventName,
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.onBackground,
-            )
-            Spacer(Modifier.height(LuminaDimens.spacing.xs))
-            Text(
-                text = EventPhotoCardStrings.metadata(event.date, event.venue, event.city),
-                style = MaterialTheme.typography.bodyMedium,
+                style = type.headlineSm,
                 color = colors.onSurface,
             )
-            Spacer(Modifier.height(LuminaDimens.spacing.sm))
-            Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs)) {
+            Text(
+                text = EventPhotoCardStrings.metadata(event.date, event.venue, event.city),
+                style = type.bodySm,
+                color = colors.onSurfaceVariant,
+            )
+            FlowRow(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+            ) {
                 event.tags.forEach { tag ->
-                    Surface(
-                        shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
-                        color = colors.surface,
-                    ) {
-                        Text(
-                            text = tag,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.onSurface,
-                            modifier = Modifier.padding(
-                                horizontal = LuminaDimens.spacing.sm,
-                                vertical = LuminaDimens.spacing.xs,
-                            ),
-                        )
-                    }
+                    StatusPill(label = tag, tone = PillTone.Neutral, showPulseDot = false)
                 }
             }
         }

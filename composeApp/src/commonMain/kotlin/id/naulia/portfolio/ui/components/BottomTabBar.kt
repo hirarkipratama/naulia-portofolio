@@ -23,7 +23,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -41,8 +40,8 @@ fun BottomTabBar(
         modifier = modifier
             .fillMaxWidth()
             .height(LuminaDimens.size.bottomBarHeight),
-        color = colors.surface,
-        shadowElevation = LuminaDimens.size.barElevation,
+        color = colors.surfaceContainerLowest,
+        shadowElevation = LuminaDimens.elevation.level1,
         shape = RectangleShape,
     ) {
         Row(
@@ -54,11 +53,11 @@ fun BottomTabBar(
         ) {
             NavSection.all.forEach { section ->
                 val isActive = section == activeSection
-                val iconColor = if (isActive) colors.onPrimary else colors.onSurface
+                val iconColor = if (isActive) colors.onPrimary else colors.onSurfaceVariant
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(LuminaDimens.cornerRadius.button))
-                        .background(if (isActive) colors.primary else colors.surface)
+                        .background(if (isActive) colors.primary else colors.surfaceContainerLowest)
                         .clickable { onSectionClick(section) }
                         .semantics {
                             role = Role.Button
@@ -74,9 +73,9 @@ fun BottomTabBar(
                         imageVector = section.imageVector,
                         contentDescription = section.labelBahasa,
                         tint = iconColor,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(LuminaDimens.size.tabIcon),
                     )
-                    Spacer(Modifier.height(2.dp))
+                    Spacer(Modifier.height(LuminaDimens.size.tabLabelGap))
                     Text(
                         text = section.labelBahasa,
                         style = LocalLuminaTypeScale.current.tabLabel,

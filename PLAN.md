@@ -260,12 +260,14 @@ Endpoint currently `https://formspree.io/f/YOUR_FORM_ID` in `AppContainer` (plac
 - [x] Local content repository, ViewModels with StateFlow, manual DI, wasm interop (audio/image/scroll/platform/fonts/global CSS).
 - [x] CR1 Audit: `docs/change-request/CR-AUDIT.md` with D1–D7 decisions, gap checklist, risks and acceptance criteria; app code untouched.
 - [x] CR2 Docs (2026-11-23): `PRD.md` rewritten with reference tokens, ID mapping, interaction specs, config/asset policy and deviations; this `PLAN.md` rewritten to the actual file tree, models, dependencies, status and CR backlog. Documentation-only — no runtime behavior changed.
+- [x] CR3.1 Theme (2026-11-23): full Curated Lumina color families mapped into `LuminaColorScheme` + Material3 (fixed tokens omitted where CMP 1.7.3 lacks them), Outfit/Hanken scale with leading/tracking and button style, spacing/gutter/margin/radius/elevation/size/motion tokens, combined font CSS injection, shell focus/theme colors updated.
+- [x] CR3.2 Primitives (2026-11-23): `LuminaPrimaryButton`, `LuminaSecondaryButton`, `LuminaIconButton`, `StatusPill`/`SectionEyebrow`/`PillTone`, `LuminaFilterChip`, `LuminaCard`, `LuminaTextField`; cards/chips/headers/inputs migrated, reduced-motion hover/lift gated; `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
 
 ### In Progress
-- None. CR1 and CR2 are complete; next prompt is CR3.1 (Curated Lumina theme tokens). CR3–CR7 items below stay unchecked until implemented and verified.
+- None. CR3 is complete; next prompt is CR4.1 (hero redesign). CR4–CR7 items below stay unchecked until implemented and verified.
 
 ### Change Request Backlog (execute in `PROMPTS.md` order; do not mark done before verification)
-- [ ] **CR3 Theme** — CR3.1 rebuild `LuminaColorScheme` + Material3 scheme with full reference families, Hanken Grotesk body/label + Outfit display with leading/tracking, elevation/radius/spacing tokens, dedupe font loading; CR3.2 shared CTA/ghost/icon buttons, chips, cards, 52px inputs, eyebrow header primitives; screens consume primitives.
+- [x] **CR3 Theme** — CR3.1 rebuilt `LuminaColorScheme` + Material3 scheme with reference families, Hanken Grotesk body/label + Outfit display with leading/tracking, elevation/radius/spacing tokens, deduped font loading; CR3.2 added shared CTA/ghost/icon buttons, chips, cards, 52px inputs, eyebrow header primitives and migrated screens.
 - [ ] **CR4 Hero/Audio** — CR4.1 hero copy/status pill, 3 trust badges, dual CTA, portrait scrim/caption, studio card deferred with `TODO("CR4.1")` + PRD note; CR4.2 reference audio heading/2-col featured layout with badge/duration/description/play/scrubber/tags, filters kept, playback semantics intact.
 - [ ] **CR5 Books/MC/About** — CR5.1 filters + reference metadata/grid for 9 books (optional `pageCount`, stats row restyled); CR5.2 centered MC header, 4 metric cards, 2 wide event showcases, trusted-client row; CR5.3 two-column About with 6 capability cards + accessible About-only EN toggle.
 - [ ] **CR6 Contact/Nav/Footer/Assets** — CR6.1 reference fields/24h note/4 channels/configurable endpoint/status handling; CR6.2 floating pill nav, 6-destination mobile bar, reference anchors + footer, keyboard/focus/scroll offset; CR6.3 canonical WebP assets, remove `.heif`, dedupe trees, no 404s.

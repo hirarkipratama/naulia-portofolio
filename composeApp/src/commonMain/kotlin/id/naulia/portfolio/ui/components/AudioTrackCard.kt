@@ -2,35 +2,22 @@ package id.naulia.portfolio.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.data.model.AudioTrack
 import id.naulia.portfolio.data.model.formattedDuration
@@ -38,6 +25,7 @@ import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 
 @Composable
 fun AudioTrackCard(
@@ -52,16 +40,16 @@ fun AudioTrackCard(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     val isActivePlaying = isActive && isPlaying
     val albumArtBitmap = rememberImageBitmap(track.coverAsset)
 
-    Card(
+    LuminaCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = LuminaDimens.spacing.xs),
-        shape = RoundedCornerShape(LuminaDimens.cornerRadius.card),
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = LuminaDimens.size.cardElevation),
+        containerColor = if (isActive) colors.surfaceContainerLow else colors.surfaceContainerLowest,
+        contentPadding = PaddingValues(0.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
@@ -70,92 +58,54 @@ fun AudioTrackCard(
                     .padding(LuminaDimens.spacing.md),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(LuminaDimens.size.cardAccent)
-                        .height(LuminaDimens.size.playButton)
-                        .background(colors.primary),
-                )
-                Spacer(Modifier.width(LuminaDimens.spacing.sm))
                 if (albumArtBitmap != null) {
                     Image(
                         bitmap = albumArtBitmap,
                         contentDescription = "Cover ${track.title}",
                         modifier = Modifier
                             .size(LuminaDimens.size.playButton)
-                            .clip(RoundedCornerShape(8.dp)),
+                            .clip(RoundedCornerShape(LuminaDimens.cornerRadius.media)),
                         contentScale = ContentScale.Crop,
                     )
-                    Spacer(Modifier.width(LuminaDimens.spacing.sm))
+                    Spacer(Modifier.width(LuminaDimens.spacing.md))
                 }
-                Surface(
-                    modifier = Modifier
-                        .width(LuminaDimens.size.playButton)
-                        .clickable { onTogglePlay() }
-                        .semantics {
-                            role = Role.Button
-                            contentDescription = if (isActivePlaying) {
-                                AudioTrackCardStrings.pauseDescription(track.title)
-                            } else {
-                                AudioTrackCardStrings.playDescription(track.title)
-                            }
-                        },
-                    shape = CircleShape,
-                    color = if (isActivePlaying) colors.primary else colors.surfaceVariant,
-                ) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        if (isActivePlaying) {
-                            Icon(
-                                imageVector = LuminaIcons.Pause,
-                                contentDescription = null,
-                                tint = colors.onPrimary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                        } else {
-                            Icon(
-                                imageVector = LuminaIcons.Play,
-                                contentDescription = null,
-                                tint = colors.primary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                        }
-                    }
-                }
+                LuminaIconButton(
+                    icon = if (isActivePlaying) LuminaIcons.Pause else LuminaIcons.Play,
+                    contentDescription = if (isActivePlaying) {
+                        AudioTrackCardStrings.pauseDescription(track.title)
+                    } else {
+                        AudioTrackCardStrings.playDescription(track.title)
+                    },
+                    onClick = onTogglePlay,
+                    containerColor = if (isActivePlaying) colors.primary else colors.surfaceContainerHigh,
+                    contentColor = if (isActivePlaying) colors.onPrimary else colors.primary,
+                )
                 Spacer(Modifier.width(LuminaDimens.spacing.md))
                 Column(modifier = Modifier.weight(TRACK_INFO_WEIGHT)) {
                     Text(
                         text = track.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = colors.onBackground,
+                        style = type.headlineSm,
+                        color = colors.onSurface,
                     )
                     Spacer(Modifier.height(LuminaDimens.spacing.xs))
-                    Surface(
-                        shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
-                        color = colors.secondary,
-                    ) {
-                        Text(
-                            text = track.category.labelBahasa,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.onPrimary,
-                            modifier = Modifier.padding(
-                                horizontal = LuminaDimens.spacing.sm,
-                                vertical = LuminaDimens.spacing.xs,
-                            ),
-                        )
-                    }
+                    StatusPill(
+                        label = track.category.labelBahasa,
+                        tone = PillTone.Secondary,
+                        showPulseDot = false,
+                    )
                     if (track.tags.isNotEmpty()) {
                         Spacer(Modifier.height(LuminaDimens.spacing.xs))
                         Text(
                             text = track.tags.joinToString(AudioTrackCardStrings.TAG_SEPARATOR),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.onSurface,
+                            style = type.bodySm,
+                            color = colors.onSurfaceVariant,
                         )
                     }
                 }
                 Text(
                     text = track.formattedDuration(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colors.onSurface,
+                    style = type.labelSm,
+                    color = colors.onSurfaceVariant,
                 )
             }
 

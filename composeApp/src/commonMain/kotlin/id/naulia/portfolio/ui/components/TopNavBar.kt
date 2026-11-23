@@ -6,7 +6,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,14 +48,20 @@ fun TopNavBar(
         modifier = modifier
             .fillMaxWidth()
             .height(LuminaDimens.size.topBarHeight),
-        color = colors.surface,
-        shadowElevation = LuminaDimens.size.barElevation,
+        color = colors.surfaceContainerLowest,
+        shadowElevation = LuminaDimens.elevation.level1,
         shape = RectangleShape,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = LuminaDimens.spacing.xl),
+                .padding(
+                    horizontal = if (isCompact) {
+                        LuminaDimens.margin.mobile
+                    } else {
+                        LuminaDimens.margin.desktop
+                    },
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -76,7 +81,7 @@ fun TopNavBar(
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = TopNavStrings.OPEN_MENU,
-                        tint = colors.onBackground,
+                        tint = colors.onSurface,
                     )
                 }
                 DropdownMenu(
@@ -88,8 +93,8 @@ fun TopNavBar(
                             text = {
                                 Text(
                                     text = section.labelBahasa,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = if (section == activeSection) colors.primary else colors.onSurface,
+                                    style = LocalLuminaTypeScale.current.bodyMd,
+                                    color = if (section == activeSection) colors.primary else colors.onSurfaceVariant,
                                 )
                             },
                             onClick = {
@@ -105,8 +110,8 @@ fun TopNavBar(
                         val isActive = section == activeSection
                         Text(
                             text = section.labelBahasa,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (isActive) colors.primary else colors.onBackground,
+                            style = LocalLuminaTypeScale.current.labelMd,
+                            color = if (isActive) colors.primary else colors.onSurfaceVariant,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(LuminaDimens.cornerRadius.button))
                                 .clickable { onSectionClick(section) }

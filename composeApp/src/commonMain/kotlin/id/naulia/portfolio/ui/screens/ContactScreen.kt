@@ -1,6 +1,7 @@
 package id.naulia.portfolio.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -10,32 +11,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
-import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.data.model.ServiceType
 import id.naulia.portfolio.platform.openEmail
 import id.naulia.portfolio.platform.openWhatsApp
+import id.naulia.portfolio.ui.components.LuminaCard
+import id.naulia.portfolio.ui.components.LuminaPrimaryButton
+import id.naulia.portfolio.ui.components.LuminaSecondaryButton
+import id.naulia.portfolio.ui.components.LuminaTextField
 import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.components.SelectableServicePill
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.viewmodel.ContactViewModel
 import id.naulia.portfolio.viewmodel.SubmissionState
 
@@ -47,24 +46,28 @@ fun ContactScreen(
 ) {
     val uiState by contactViewModel.uiState.collectAsState()
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     val validation = uiState.validation
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.spacing.xl,
-                vertical = LuminaDimens.spacing.xxl,
+                horizontal = LuminaDimens.margin.mobile,
+                vertical = LuminaDimens.spacing.xl,
             ),
     ) {
         SectionHeader(
             title = ContactStrings.TITLE,
             subtitle = ContactStrings.SUBTITLE,
+            eyebrow = ContactStrings.EYEBROW,
+            eyebrowIcon = LuminaIcons.Mail,
+            eyebrowTone = id.naulia.portfolio.ui.components.PillTone.Secondary,
         )
 
         FlowRow(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
         ) {
             ServiceType.entries.forEach { service ->
                 SelectableServicePill(
@@ -79,54 +82,42 @@ fun ContactScreen(
         }
         Spacer(Modifier.height(LuminaDimens.spacing.md))
 
-        OutlinedTextField(
+        LuminaTextField(
             value = uiState.form.name,
             onValueChange = { value -> contactViewModel.updateName(value) },
-            label = { Text(ContactStrings.NAME_LABEL) },
+            label = ContactStrings.NAME_LABEL,
             isError = validation.nameError != null,
             supportingText = validation.nameError?.let { error -> { FormError(error) } },
-            shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
-            singleLine = true,
-            colors = contactFieldColors(),
-            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(LuminaDimens.spacing.md))
 
-        OutlinedTextField(
+        LuminaTextField(
             value = uiState.form.contact,
             onValueChange = { value -> contactViewModel.updateContact(value) },
-            label = { Text(ContactStrings.CONTACT_LABEL) },
+            label = ContactStrings.CONTACT_LABEL,
             isError = validation.contactError != null,
             supportingText = validation.contactError?.let { error -> { FormError(error) } }
-                ?: { Text(ContactStrings.CONTACT_HELPER, style = MaterialTheme.typography.labelSmall) },
-            shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
-            singleLine = true,
-            colors = contactFieldColors(),
-            modifier = Modifier.fillMaxWidth(),
+                ?: { Text(ContactStrings.CONTACT_HELPER, style = type.labelSm, color = colors.onSurfaceVariant) },
         )
         Spacer(Modifier.height(LuminaDimens.spacing.md))
 
-        OutlinedTextField(
+        LuminaTextField(
             value = uiState.form.scope,
             onValueChange = { value -> contactViewModel.updateScope(value) },
-            label = { Text(ContactStrings.SCOPE_LABEL) },
+            label = ContactStrings.SCOPE_LABEL,
             isError = validation.scopeError != null,
-            supportingText = validation.scopeError?.let { error -> { FormError(error) } },
-            shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
+            singleLine = false,
             minLines = MULTILINE_MIN_LINES,
-            colors = contactFieldColors(),
-            modifier = Modifier.fillMaxWidth(),
+            supportingText = validation.scopeError?.let { error -> { FormError(error) } },
         )
         Spacer(Modifier.height(LuminaDimens.spacing.md))
 
-        OutlinedTextField(
+        LuminaTextField(
             value = uiState.form.message,
             onValueChange = { value -> contactViewModel.updateMessage(value) },
-            label = { Text(ContactStrings.MESSAGE_LABEL) },
-            shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
+            label = ContactStrings.MESSAGE_LABEL,
+            singleLine = false,
             minLines = OPTIONAL_MULTILINE_MIN_LINES,
-            colors = contactFieldColors(),
-            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(LuminaDimens.spacing.lg))
 
@@ -140,7 +131,7 @@ fun ContactScreen(
         if (errorMessage != null) {
             Spacer(Modifier.height(LuminaDimens.spacing.md))
             Surface(
-                color = MaterialTheme.colorScheme.errorContainer,
+                color = colors.errorContainer,
                 shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -148,8 +139,8 @@ fun ContactScreen(
             ) {
                 Text(
                     text = errorMessage,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = type.bodySm,
+                    color = colors.onErrorContainer,
                     modifier = Modifier.padding(LuminaDimens.spacing.md),
                 )
             }
@@ -158,41 +149,23 @@ fun ContactScreen(
         Spacer(Modifier.height(LuminaDimens.spacing.xl))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.md),
+            horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.md),
         ) {
-            Button(
+            LuminaPrimaryButton(
+                label = ContactStrings.WHATSAPP_LABEL,
                 onClick = { openWhatsApp(ContactStrings.WHATSAPP_NUMBER, ContactStrings.WHATSAPP_MESSAGE) },
+                icon = LuminaIcons.Chat,
                 modifier = Modifier.weight(DIRECT_CONTACT_WEIGHT),
-            ) {
-                Icon(
-                    imageVector = LuminaIcons.Chat,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(LuminaDimens.spacing.xs))
-                Text(ContactStrings.WHATSAPP_LABEL, style = MaterialTheme.typography.labelLarge)
-            }
-            OutlinedButton(
+            )
+            LuminaSecondaryButton(
+                label = ContactStrings.EMAIL_LABEL,
                 onClick = { openEmail(ContactStrings.EMAIL_ADDRESS) },
+                icon = LuminaIcons.Mail,
                 modifier = Modifier.weight(DIRECT_CONTACT_WEIGHT),
-            ) {
-                Icon(
-                    imageVector = LuminaIcons.Mail,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(LuminaDimens.spacing.xs))
-                Text(ContactStrings.EMAIL_LABEL, style = MaterialTheme.typography.labelLarge)
-            }
+            )
         }
     }
 }
-
-@Composable
-private fun contactFieldColors() = TextFieldDefaults.colors(
-    focusedIndicatorColor = LocalLuminaColors.current.primary,
-    focusedLabelColor = LocalLuminaColors.current.primary,
-)
 
 @Composable
 private fun SubmitButton(
@@ -200,23 +173,20 @@ private fun SubmitButton(
     onSubmit: () -> Unit,
 ) {
     val isLoading = submissionState is SubmissionState.Loading
-    Button(
+    val label = when (submissionState) {
+        is SubmissionState.Idle -> ContactStrings.SUBMIT_LABEL
+        is SubmissionState.Loading -> ContactStrings.SUBMITTING_LABEL
+        is SubmissionState.Success -> ContactStrings.SUBMITTED_LABEL
+        is SubmissionState.Error -> ContactStrings.RETRY_LABEL
+    }
+    LuminaPrimaryButton(
+        label = label,
         onClick = onSubmit,
         enabled = !isLoading,
+        loading = isLoading,
+        icon = if (isLoading) null else LuminaIcons.Mail,
         modifier = Modifier.fillMaxWidth(),
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-        } else {
-            val label = when (submissionState) {
-                is SubmissionState.Idle -> ContactStrings.SUBMIT_LABEL
-                is SubmissionState.Loading -> ContactStrings.SUBMITTING_LABEL
-                is SubmissionState.Success -> ContactStrings.SUBMITTED_LABEL
-                is SubmissionState.Error -> ContactStrings.RETRY_LABEL
-            }
-            Text(label, style = MaterialTheme.typography.labelLarge)
-        }
-    }
+    )
 }
 
 @Composable
@@ -225,17 +195,18 @@ private fun SuccessMessage(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     Spacer(Modifier.height(LuminaDimens.spacing.lg))
-    Surface(
-        color = colors.surface,
-        shape = RoundedCornerShape(LuminaDimens.cornerRadius.card),
+    LuminaCard(
         modifier = modifier
             .fillMaxWidth()
             .semantics { contentDescription = ContactStrings.SUCCESS_DESCRIPTION },
     ) {
         Column(
-            modifier = Modifier.padding(LuminaDimens.spacing.lg),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(LuminaDimens.spacing.lg),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
                 imageVector = LuminaIcons.CheckCircle,
@@ -246,13 +217,11 @@ private fun SuccessMessage(
             Spacer(Modifier.height(LuminaDimens.spacing.sm))
             Text(
                 text = ContactStrings.SUCCESS_MESSAGE,
-                style = MaterialTheme.typography.bodyLarge,
-                color = colors.onBackground,
+                style = type.bodyLg,
+                color = colors.onSurface,
             )
             Spacer(Modifier.height(LuminaDimens.spacing.md))
-            OutlinedButton(onClick = onReset) {
-                Text(ContactStrings.RESET_LABEL, style = MaterialTheme.typography.labelLarge)
-            }
+            LuminaSecondaryButton(onClick = onReset, label = ContactStrings.RESET_LABEL)
         }
     }
 }
@@ -261,8 +230,8 @@ private fun SuccessMessage(
 private fun FormError(message: String) {
     Text(
         text = message,
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.error,
+        style = LocalLuminaTypeScale.current.labelSm,
+        color = LocalLuminaColors.current.error,
     )
 }
 
@@ -271,6 +240,7 @@ private const val OPTIONAL_MULTILINE_MIN_LINES = 2
 private const val DIRECT_CONTACT_WEIGHT = 1f
 
 object ContactStrings {
+    const val EYEBROW = "MARI BERKOLABORASI"
     const val TITLE = "Formulir Kolaborasi & Reservasi"
     const val SUBTITLE = "Undang Naulia untuk proyek editorial, MC acara, atau rekaman VO"
     const val NAME_LABEL = "Nama Lengkap"

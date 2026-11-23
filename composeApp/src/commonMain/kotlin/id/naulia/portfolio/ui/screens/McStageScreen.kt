@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,9 +20,12 @@ import androidx.compose.foundation.layout.width
 import id.naulia.portfolio.data.model.PortfolioMetrics
 import id.naulia.portfolio.ui.components.EventPhotoCard
 import id.naulia.portfolio.ui.components.MetricCard
+import id.naulia.portfolio.ui.components.PillTone
 import id.naulia.portfolio.ui.components.SectionHeader
+import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 import id.naulia.portfolio.viewmodel.CmsViewModel
 
@@ -41,13 +43,17 @@ fun McStageScreen(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.spacing.xl,
+                horizontal = LuminaDimens.margin.mobile,
                 vertical = LuminaDimens.spacing.xxl,
             ),
     ) {
         SectionHeader(
             title = McStageStrings.TITLE,
             subtitle = McStageStrings.SUBTITLE,
+            eyebrow = McStageStrings.EYEBROW,
+            eyebrowIcon = LuminaIcons.Stage,
+            eyebrowTone = PillTone.Primary,
+            centered = true,
         )
         if (isMobile) {
             for (rowIndex in metrics.indices step MOBILE_METRIC_COLUMNS) {
@@ -111,8 +117,8 @@ fun McStageScreen(
         Spacer(Modifier.height(LuminaDimens.spacing.xl))
         Text(
             text = McStageStrings.CREDIBILITY,
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurface,
+            style = LocalLuminaTypeScale.current.bodySm,
+            color = colors.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,6 +141,7 @@ private const val EVENT_WEIGHT = 1f
 private val EVENT_CARD_WIDTH = LuminaDimens.size.portraitWidth
 
 private object McStageStrings {
+    const val EYEBROW = "MC PANGGUNG & MODERATOR ACARA"
     const val TITLE = "MC Panggung & Moderator Acara"
     const val SUBTITLE = "Pengalaman memandu acara buku, festival, dan expo sains dengan audiens hingga ratusan peserta"
     const val TOTAL_EVENTS_LABEL = "Total Acara"
