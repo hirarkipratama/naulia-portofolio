@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
@@ -27,6 +26,7 @@ import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.focusRing
 
 @Composable
 fun BottomTabBar(
@@ -35,14 +35,16 @@ fun BottomTabBar(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
+    val pillShape = RoundedCornerShape(LuminaDimens.cornerRadius.pill)
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .height(LuminaDimens.size.bottomBarHeight),
         color = colors.surfaceContainerLowest,
-        shadowElevation = LuminaDimens.elevation.level1,
-        shape = RectangleShape,
+        shadowElevation = LuminaDimens.elevation.level2,
+        shape = pillShape,
     ) {
         Row(
             modifier = Modifier
@@ -56,12 +58,13 @@ fun BottomTabBar(
                 val iconColor = if (isActive) colors.onPrimary else colors.onSurfaceVariant
                 Column(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(LuminaDimens.cornerRadius.button))
+                        .clip(pillShape)
                         .background(if (isActive) colors.primary else colors.surfaceContainerLowest)
                         .clickable { onSectionClick(section) }
+                        .focusRing(pillShape)
                         .semantics {
                             role = Role.Button
-                            contentDescription = section.labelBahasa
+                            contentDescription = section.navLabelBahasa
                         }
                         .padding(
                             horizontal = LuminaDimens.spacing.xs,
@@ -71,14 +74,14 @@ fun BottomTabBar(
                 ) {
                     Icon(
                         imageVector = section.imageVector,
-                        contentDescription = section.labelBahasa,
+                        contentDescription = section.navLabelBahasa,
                         tint = iconColor,
                         modifier = Modifier.size(LuminaDimens.size.tabIcon),
                     )
                     Spacer(Modifier.height(LuminaDimens.size.tabLabelGap))
                     Text(
                         text = section.labelBahasa,
-                        style = LocalLuminaTypeScale.current.tabLabel,
+                        style = type.tabLabel,
                         color = iconColor,
                     )
                 }

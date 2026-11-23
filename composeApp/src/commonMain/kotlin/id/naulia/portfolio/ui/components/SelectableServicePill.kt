@@ -18,6 +18,7 @@ import id.naulia.portfolio.data.model.ServiceType
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.focusRing
 
 @Composable
 fun SelectableServicePill(
@@ -29,13 +30,13 @@ fun SelectableServicePill(
     val colors = LocalLuminaColors.current
     val type = LocalLuminaTypeScale.current
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) colors.primary else colors.surfaceContainerLow,
+        targetValue = if (isSelected) colors.secondaryContainer else colors.surfaceContainerHighest,
     )
     val textColor by animateColorAsState(
-        targetValue = if (isSelected) colors.onPrimary else colors.onSurfaceVariant,
+        targetValue = if (isSelected) colors.onSecondaryContainer else colors.onSurfaceVariant,
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isSelected) colors.primary else colors.outlineVariant,
+        targetValue = if (isSelected) colors.secondaryContainer else colors.outlineVariant,
     )
 
     Surface(
@@ -43,7 +44,9 @@ fun SelectableServicePill(
         shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
         color = backgroundColor,
         border = BorderStroke(LuminaDimens.size.thinBorder, borderColor),
-        modifier = modifier.semantics {
+        modifier = modifier
+            .focusRing(RoundedCornerShape(LuminaDimens.cornerRadius.pill))
+            .semantics {
             role = Role.Checkbox
             stateDescription = if (isSelected) {
                 SelectableServicePillStrings.SELECTED

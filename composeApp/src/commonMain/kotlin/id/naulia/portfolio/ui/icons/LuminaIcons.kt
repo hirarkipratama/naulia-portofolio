@@ -708,6 +708,73 @@ object LuminaIcons {
         }
     }.build()
 
+    val Instagram: ImageVector = ImageVector.Builder(
+        name = "Instagram",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = null, stroke = SolidColor(Color.White), strokeLineWidth = 1.8f) {
+            moveTo(7f, 2f)
+            curveTo(4.24f, 2f, 2f, 4.24f, 2f, 7f)
+            verticalLineTo(17f)
+            curveTo(2f, 19.76f, 4.24f, 22f, 7f, 22f)
+            horizontalLineTo(17f)
+            curveTo(19.76f, 22f, 22f, 19.76f, 22f, 17f)
+            verticalLineTo(7f)
+            curveTo(22f, 4.24f, 19.76f, 2f, 17f, 2f)
+            close()
+            moveTo(12f, 7f)
+            curveTo(9.24f, 7f, 7f, 9.24f, 7f, 12f)
+            curveTo(7f, 14.76f, 9.24f, 17f, 12f, 17f)
+            curveTo(14.76f, 17f, 17f, 14.76f, 17f, 12f)
+            curveTo(17f, 9.24f, 14.76f, 7f, 12f, 7f)
+            close()
+        }
+        path(fill = SolidColor(Color.White)) {
+            moveTo(17.5f, 5.5f)
+            curveTo(18.33f, 5.5f, 19f, 6.17f, 19f, 7f)
+            curveTo(19f, 7.83f, 18.33f, 8.5f, 17.5f, 8.5f)
+            curveTo(16.67f, 8.5f, 16f, 7.83f, 16f, 7f)
+            curveTo(16f, 6.17f, 16.67f, 5.5f, 17.5f, 5.5f)
+            close()
+        }
+    }.build()
+
+    val Work: ImageVector = ImageVector.Builder(
+        name = "Work",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(20f, 6f)
+            horizontalLineTo(16f)
+            verticalLineTo(4.5f)
+            curveTo(16f, 3.67f, 15.33f, 3f, 14.5f, 3f)
+            horizontalLineTo(9.5f)
+            curveTo(8.67f, 3f, 8f, 3.67f, 8f, 4.5f)
+            verticalLineTo(6f)
+            horizontalLineTo(4f)
+            curveTo(3f, 6f, 2.1f, 6.9f, 2.1f, 8f)
+            lineTo(2f, 19f)
+            curveTo(2f, 20.1f, 2.9f, 21f, 4f, 21f)
+            horizontalLineTo(20f)
+            curveTo(21.1f, 21f, 22f, 20.1f, 22f, 19f)
+            verticalLineTo(8f)
+            curveTo(22f, 6.9f, 21.1f, 6f, 20f, 6f)
+            close()
+            moveTo(14f, 6f)
+            horizontalLineTo(10f)
+            verticalLineTo(4.5f)
+            horizontalLineTo(14f)
+            verticalLineTo(6f)
+            close()
+        }
+    }.build()
+
     val Schedule: ImageVector = ImageVector.Builder(
         name = "Schedule",
         defaultWidth = 24.dp,

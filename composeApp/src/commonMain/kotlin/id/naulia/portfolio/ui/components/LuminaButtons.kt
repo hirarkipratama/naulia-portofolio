@@ -35,6 +35,7 @@ import id.naulia.portfolio.platform.prefersReducedMotion
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.focusRing
 
 @Composable
 fun LuminaPrimaryButton(
@@ -89,6 +90,7 @@ fun LuminaPrimaryButton(
                 spotColor = colors.shadowCoral,
             )
             .hoverable(interactionSource = interactionSource)
+            .focusRing(shape)
             .semantics { role = Role.Button },
         shape = shape,
         color = containerColor,
@@ -159,6 +161,7 @@ fun LuminaSecondaryButton(
                 scaleY = scale
             }
             .hoverable(interactionSource = interactionSource)
+            .focusRing(shape)
             .semantics { role = Role.Button },
         shape = shape,
         color = containerColor,
@@ -216,6 +219,7 @@ fun LuminaIconButton(
         modifier = modifier
             .size(LuminaDimens.size.iconButton)
             .hoverable(interactionSource = interactionSource)
+            .focusRing(CircleShape)
             .semantics { role = Role.Button },
         shape = CircleShape,
         color = background,

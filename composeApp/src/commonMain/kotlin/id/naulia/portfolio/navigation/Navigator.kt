@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import id.naulia.portfolio.platform.prefersReducedMotion
 
 class Navigator(
     private val scrollCoordinator: SectionScrollCoordinator? = null,
@@ -20,11 +21,16 @@ class Navigator(
 
     fun navigateTo(section: NavSection) {
         _activeSection.update { section }
+        syncSectionHash(section.sectionId)
         val coordinator = scrollCoordinator
         if (coordinator != null) {
             scope.launch {
                 val startOffset = coordinator.scrollState.value
                 val targetOffset = coordinator.offsetFor(section.sectionId)
+                if (prefersReducedMotion()) {
+                    coordinator.scrollState.scrollTo(targetOffset)
+                    return@launch
+                }
                 for (step in 1..SCROLL_STEPS) {
                     val linearProgress = step / SCROLL_STEPS.toFloat()
                     val easedProgress = linearProgress * linearProgress * (EASING_FACTOR - EASING_MULTIPLIER * linearProgress)

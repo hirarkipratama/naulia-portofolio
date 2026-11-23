@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import id.naulia.portfolio.di.AppContainer
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.navigation.Navigator
@@ -48,7 +50,13 @@ fun App() {
         val contactViewModel = remember { AppContainer.contactViewModel }
         val activeSection by navigator.activeSection.collectAsState()
         val isMobile = rememberIsMobile()
+        val density = LocalDensity.current
 
+        LaunchedEffect(density) {
+            scrollCoordinator.setTopOffsetPx(
+                (LuminaDimens.size.topBarHeight.value * density.density).toInt(),
+            )
+        }
         LaunchedEffect(Unit) {
             setupScrollObserver(navigator)
         }
@@ -87,11 +95,21 @@ fun App() {
                     AboutScreen()
                 }
                 SectionAnchor(NavSection.Contact, scrollCoordinator) {
-                    ContactScreen(contactViewModel = contactViewModel)
+                    ContactScreen(
+                        contactViewModel = contactViewModel,
+                        contactConfig = AppContainer.contactConfig,
+                    )
                 }
-                FooterSection(navigator = navigator)
+                FooterSection(
+                    navigator = navigator,
+                    contactConfig = AppContainer.contactConfig,
+                )
                 if (isMobile) {
-                    Spacer(Modifier.height(LuminaDimens.size.bottomBarHeight))
+                    Spacer(
+                        Modifier.height(
+                            LuminaDimens.size.bottomBarHeight + LuminaDimens.spacing.sm * NAV_PADDING_MULTIPLIER,
+                        ),
+                    )
                 }
             }
 
@@ -105,12 +123,19 @@ fun App() {
                 BottomTabBar(
                     activeSection = activeSection,
                     onSectionClick = { section -> navigator.navigateTo(section) },
-                    modifier = Modifier.align(Alignment.BottomCenter),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(
+                            horizontal = LuminaDimens.margin.mobile,
+                            vertical = LuminaDimens.spacing.sm,
+                        ),
                 )
             }
         }
     }
 }
+
+private const val NAV_PADDING_MULTIPLIER = 2
 
 @Composable
 private fun SectionAnchor(

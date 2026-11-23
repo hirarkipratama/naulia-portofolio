@@ -6,6 +6,7 @@ import id.naulia.portfolio.data.model.ServiceType
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class ContactViewModel(
     private val httpClient: HttpClient,
     private val formEndpoint: String,
+    private val formConfigured: Boolean,
 ) {
     @Stable
     data class FormUiState(
@@ -34,15 +36,15 @@ class ContactViewModel(
     private val _uiState = MutableStateFlow(FormUiState())
     val uiState: StateFlow<FormUiState> = _uiState.asStateFlow()
 
-    fun updateName(name: String) {
+    fun updateNameAndInstitution(value: String) {
         _uiState.update { state ->
-            state.withUpdatedForm(state.form.copy(name = name))
+            state.withUpdatedForm(state.form.copy(nameAndInstitution = value))
         }
     }
 
-    fun updateContact(contact: String) {
+    fun updateContact(value: String) {
         _uiState.update { state ->
-            state.withUpdatedForm(state.form.copy(contact = contact))
+            state.withUpdatedForm(state.form.copy(contact = value))
         }
     }
 
@@ -58,31 +60,41 @@ class ContactViewModel(
         }
     }
 
-    fun updateScope(scope: String) {
+    fun updateProjectScope(value: String) {
         _uiState.update { state ->
-            state.withUpdatedForm(state.form.copy(scope = scope))
+            state.withUpdatedForm(state.form.copy(projectScope = value))
         }
     }
 
-    fun updateMessage(message: String) {
+    fun updateMessage(value: String) {
         _uiState.update { state ->
-            state.withUpdatedForm(state.form.copy(message = message))
+            state.withUpdatedForm(state.form.copy(message = value))
         }
     }
 
     fun submit() {
-        val validation = validate()
+        val validation = validateContactForm(_uiState.value.form)
         _uiState.update { it.copy(validation = validation) }
         if (!validation.isValid) return
+
+        if (!formConfigured) {
+            _uiState.update { it.copy(submissionState = SubmissionState.Error(FORM_NOT_CONFIGURED_MESSAGE)) }
+            return
+        }
 
         _uiState.update { it.copy(submissionState = SubmissionState.Loading) }
         scope.launch {
             try {
-                httpClient.post(formEndpoint) {
+                val response: HttpResponse = httpClient.post(formEndpoint) {
                     contentType(ContentType.Application.Json)
                     setBody(_uiState.value.form)
                 }
-                _uiState.update { it.copy(submissionState = SubmissionState.Success) }
+                val nextState = if (response.status.value in SUCCESS_STATUS_RANGE) {
+                    SubmissionState.Success
+                } else {
+                    SubmissionState.Error(SUBMISSION_FAILED_MESSAGE)
+                }
+                _uiState.update { it.copy(submissionState = nextState) }
             } catch (exception: Exception) {
                 _uiState.update {
                     it.copy(
@@ -99,8 +111,6 @@ class ContactViewModel(
         _uiState.update { FormUiState() }
     }
 
-    private fun validate(): FormValidation = validateContactForm(_uiState.value.form)
-
     private fun FormUiState.withUpdatedForm(form: ContactForm): FormUiState = copy(
         form = form,
         validation = FormValidation(null, null, null, null),
@@ -111,6 +121,9 @@ class ContactViewModel(
     }
 
     companion object {
-        const val SUBMISSION_ERROR_MESSAGE = "Gagal mengirim permintaan. Silakan coba lagi."
+        const val SUBMISSION_ERROR_MESSAGE = "Gagal mengirim pesan. Silakan coba lagi."
+        const val SUBMISSION_FAILED_MESSAGE = "Pengiriman ditolak server. Silakan coba lagi."
+        const val FORM_NOT_CONFIGURED_MESSAGE = "Formulir belum dikonfigurasi. Hubungi langsung via WhatsApp atau email."
+        private val SUCCESS_STATUS_RANGE = 200..299
     }
 }

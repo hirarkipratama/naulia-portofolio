@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ContactForm(
-    val name: String = "",
+    val nameAndInstitution: String = "",
     val contact: String = "",
     val services: Set<ServiceType> = emptySet(),
-    val scope: String = "",
+    val projectScope: String = "",
     val message: String = "",
 )

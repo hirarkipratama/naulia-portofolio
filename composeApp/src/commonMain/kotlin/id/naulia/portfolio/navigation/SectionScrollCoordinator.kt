@@ -6,6 +6,7 @@ class SectionScrollCoordinator {
     val scrollState = ScrollState(INITIAL_SCROLL_POSITION)
 
     private val sectionOffsets = mutableMapOf<String, Int>()
+    private var topOffsetPx = INITIAL_SCROLL_POSITION
 
     fun registerSection(sectionId: String, offsetPx: Int) {
         sectionOffsets[sectionId] = offsetPx
@@ -17,14 +18,20 @@ class SectionScrollCoordinator {
         }
     }
 
-    fun offsetFor(sectionId: String): Int = sectionOffsets[sectionId] ?: INITIAL_SCROLL_POSITION
+    fun setTopOffsetPx(offsetPx: Int) {
+        topOffsetPx = offsetPx.coerceAtLeast(INITIAL_SCROLL_POSITION)
+    }
+
+    fun offsetFor(sectionId: String): Int =
+        maxOf(INITIAL_SCROLL_POSITION, (sectionOffsets[sectionId] ?: INITIAL_SCROLL_POSITION) - topOffsetPx)
 
     fun activeSectionAt(scrollPositionPx: Int): NavSection? {
         var activeSection: NavSection? = null
         var highestOffset = Int.MIN_VALUE
         NavSection.all.forEach { section ->
             val offset = sectionOffsets[section.sectionId] ?: return@forEach
-            if (offset <= scrollPositionPx + ACTIVE_SECTION_TOLERANCE_PX && offset > highestOffset) {
+            val visibleThresholdPx = scrollPositionPx + topOffsetPx + ACTIVE_SECTION_TOLERANCE_PX
+            if (offset <= visibleThresholdPx && offset > highestOffset) {
                 highestOffset = offset
                 activeSection = section
             }

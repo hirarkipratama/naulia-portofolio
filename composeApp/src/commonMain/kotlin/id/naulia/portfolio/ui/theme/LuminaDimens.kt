@@ -86,6 +86,11 @@ object LuminaDimens {
         val equalizerBarMaxHeight = 32.dp
         val thinBorder = 1.dp
         val accentBorder = 1.5.dp
+        val channelIcon = 44.dp
+        val channelIconGlyph = 20.dp
+        val channelButtonHeight = 56.dp
+        val focusRingWidth = 2.dp
+        val noBorder = 0.dp
         val scrubberHeight = 20.dp
     }
 
