@@ -12,4 +12,6 @@ data class McEvent(
     val estimatedAttendees: Int,
     val photoAsset: String,
     val tags: List<String>,
+    val role: String = "",
+    val description: String = "",
 )

@@ -1,27 +1,27 @@
 package id.naulia.portfolio.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.layout.width
 import id.naulia.portfolio.data.model.PortfolioMetrics
 import id.naulia.portfolio.ui.components.EventPhotoCard
 import id.naulia.portfolio.ui.components.MetricCard
+import id.naulia.portfolio.ui.components.MetricTone
 import id.naulia.portfolio.ui.components.PillTone
 import id.naulia.portfolio.ui.components.SectionHeader
+import id.naulia.portfolio.ui.components.TrustedClient
+import id.naulia.portfolio.ui.components.TrustedClientRow
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -38,6 +38,9 @@ fun McStageScreen(
     val colors = LocalLuminaColors.current
     val isMobile = rememberIsMobile()
     val metrics = remember(contentState.metrics) { contentState.metrics.toDisplayMetrics() }
+    val featuredEvents = remember(contentState.events) {
+        contentState.events.take(FEATURED_EVENT_COUNT)
+    }
 
     Column(
         modifier = modifier
@@ -51,20 +54,32 @@ fun McStageScreen(
             title = McStageStrings.TITLE,
             subtitle = McStageStrings.SUBTITLE,
             eyebrow = McStageStrings.EYEBROW,
-            eyebrowIcon = LuminaIcons.Stage,
+            eyebrowIcon = LuminaIcons.Mic,
             eyebrowTone = PillTone.Primary,
             centered = true,
         )
+        if (contentState.isLoading) {
+            CircularProgressIndicator(color = colors.primary)
+        }
+        contentState.errorMessage?.let { message ->
+            Text(
+                text = message,
+                style = LocalLuminaTypeScale.current.bodySm,
+                color = colors.onSurfaceVariant,
+            )
+        }
         if (isMobile) {
             for (rowIndex in metrics.indices step MOBILE_METRIC_COLUMNS) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
                 ) {
                     metrics.drop(rowIndex).take(MOBILE_METRIC_COLUMNS).forEach { metric ->
                         MetricCard(
-                            value = metric.first,
-                            label = metric.second,
+                            value = metric.value,
+                            label = metric.label,
+                            supportingText = metric.supportingText,
+                            tone = metric.tone,
                             modifier = Modifier.weight(METRIC_WEIGHT),
                         )
                     }
@@ -74,12 +89,14 @@ fun McStageScreen(
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.md),
             ) {
                 metrics.forEach { metric ->
                     MetricCard(
-                        value = metric.first,
-                        label = metric.second,
+                        value = metric.value,
+                        label = metric.label,
+                        supportingText = metric.supportingText,
+                        tone = metric.tone,
                         modifier = Modifier.weight(METRIC_WEIGHT),
                     )
                 }
@@ -87,69 +104,99 @@ fun McStageScreen(
         }
 
         Spacer(Modifier.height(LuminaDimens.spacing.xl))
-        val events = contentState.events
         if (isMobile) {
-            LazyRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.md)) {
-                items(items = events, key = { it.id }) { event ->
-                    EventPhotoCard(
-                        event = event,
-                        modifier = Modifier.width(EVENT_CARD_WIDTH),
-                    )
-                }
+            featuredEvents.forEach { event ->
+                EventPhotoCard(event = event)
+                Spacer(Modifier.height(LuminaDimens.spacing.md))
             }
         } else {
-            for (startIndex in events.indices step DESKTOP_EVENT_COLUMNS) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.md),
-                ) {
-                    events.drop(startIndex).take(DESKTOP_EVENT_COLUMNS).forEach { event ->
-                        EventPhotoCard(
-                            event = event,
-                            modifier = Modifier.weight(EVENT_WEIGHT),
-                        )
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.gutter.desktop),
+            ) {
+                featuredEvents.forEachIndexed { index, event ->
+                    EventPhotoCard(
+                        event = event,
+                        audienceTone = FEATURED_AUDIENCE_TONES.getOrElse(index) { PillTone.Spotlight },
+                        modifier = Modifier.weight(EVENT_WEIGHT),
+                    )
                 }
-                Spacer(Modifier.height(LuminaDimens.spacing.md))
             }
         }
 
         Spacer(Modifier.height(LuminaDimens.spacing.xl))
-        Text(
-            text = McStageStrings.CREDIBILITY,
-            style = LocalLuminaTypeScale.current.bodySm,
-            color = colors.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
+        TrustedClientRow(
+            label = McStageStrings.TRUSTED_LABEL,
+            clients = TrustedClients,
         )
     }
 }
 
-private fun PortfolioMetrics.toDisplayMetrics(): List<Pair<String, String>> = listOf(
-    McStageStrings.totalEvents(totalEvents) to McStageStrings.TOTAL_EVENTS_LABEL,
-    McStageStrings.PARTNER_VALUE to McStageStrings.PARTNER_LABEL,
-    McStageStrings.audiobooks(audiobooksProduced) to McStageStrings.AUDIOBOOKS_LABEL,
-    McStageStrings.retention(clientRetentionPct) to McStageStrings.RETENTION_LABEL,
+private data class MetricDisplay(
+    val value: String,
+    val label: String,
+    val supportingText: String,
+    val tone: MetricTone,
 )
 
+private fun PortfolioMetrics.toDisplayMetrics(): List<MetricDisplay> = listOf(
+    MetricDisplay(
+        value = McStageStrings.totalEvents(totalEvents),
+        label = McStageStrings.TOTAL_EVENTS_LABEL,
+        supportingText = McStageStrings.TOTAL_EVENTS_SUPPORT,
+        tone = MetricTone.Coral,
+    ),
+    MetricDisplay(
+        value = officialPartners,
+        label = McStageStrings.PARTNER_LABEL,
+        supportingText = McStageStrings.PARTNER_SUPPORT,
+        tone = MetricTone.Sun,
+    ),
+    MetricDisplay(
+        value = McStageStrings.audiobooks(audiobooksProduced),
+        label = McStageStrings.AUDIOBOOKS_LABEL,
+        supportingText = McStageStrings.AUDIOBOOKS_SUPPORT,
+        tone = MetricTone.Mint,
+    ),
+    MetricDisplay(
+        value = McStageStrings.retention(clientRetentionPct),
+        label = McStageStrings.RETENTION_LABEL,
+        supportingText = McStageStrings.RETENTION_SUPPORT,
+        tone = MetricTone.Neutral,
+    ),
+)
+
+private val TrustedClients = listOf(
+    TrustedClient(McStageStrings.CLIENT_GRAMEDIA, LuminaIcons.Library, PillTone.Primary),
+    TrustedClient(McStageStrings.CLIENT_KOMPAS, LuminaIcons.School, PillTone.Secondary),
+    TrustedClient(McStageStrings.CLIENT_KEMENDIKBUD, LuminaIcons.Book, PillTone.Tertiary),
+    TrustedClient(McStageStrings.CLIENT_MIZAN, LuminaIcons.TheaterMasks, PillTone.Primary),
+)
+
+private val FEATURED_AUDIENCE_TONES = listOf(PillTone.Spotlight, PillTone.Tertiary)
 private const val MOBILE_METRIC_COLUMNS = 2
-private const val DESKTOP_EVENT_COLUMNS = 3
+private const val FEATURED_EVENT_COUNT = 2
 private const val METRIC_WEIGHT = 1f
 private const val EVENT_WEIGHT = 1f
-private val EVENT_CARD_WIDTH = LuminaDimens.size.portraitWidth
 
 private object McStageStrings {
-    const val EYEBROW = "MC PANGGUNG & MODERATOR ACARA"
-    const val TITLE = "MC Panggung & Moderator Acara"
-    const val SUBTITLE = "Pengalaman memandu acara buku, festival, dan expo sains dengan audiens hingga ratusan peserta"
-    const val TOTAL_EVENTS_LABEL = "Total Acara"
-    const val PARTNER_VALUE = "Mitra Resmi"
-    const val PARTNER_LABEL = "Gramedia Official"
-    const val AUDIOBOOKS_LABEL = "Audiobook Diproduksi"
+    const val EYEBROW = "🎙️ MC PANGGUNG & MODERATOR ACARA"
+    const val TITLE = "Menghangatkan Panggung dengan Antusiasme & Energi"
+    const val SUBTITLE =
+        "Menjaga auditorium berisi 500+ audiens tetap antusias, ceria, dan penasaran lewat pemanduan yang interaktif dan penuh empati."
+    const val TOTAL_EVENTS_LABEL = "Acara Langsung"
+    const val TOTAL_EVENTS_SUPPORT = "Dipandu di Seluruh Indonesia"
+    const val PARTNER_LABEL = "Mitra Resmi"
+    const val PARTNER_SUPPORT = "Panggung Acara"
+    const val AUDIOBOOKS_LABEL = "Judul Buku Suara"
+    const val AUDIOBOOKS_SUPPORT = "Dinuturkan & Diarahkan"
     const val RETENTION_LABEL = "Retensi Klien"
-    const val CREDIBILITY = "Gramedia · Kemendikbud · BookFest Jakarta · Science Expo · Pesta Buku"
+    const val RETENTION_SUPPORT = "Kerja Sama Berulang"
+    const val TRUSTED_LABEL = "DIPERCAYA OLEH PENERBIT & LEMBAGA EDUKASI TERNAMA"
+    const val CLIENT_GRAMEDIA = "Gramedia"
+    const val CLIENT_KOMPAS = "Kompas Edukasi"
+    const val CLIENT_KEMENDIKBUD = "Kemendikbud Literacy"
+    const val CLIENT_MIZAN = "Mizan Kids"
 
     fun totalEvents(count: Int): String = "$count+"
 

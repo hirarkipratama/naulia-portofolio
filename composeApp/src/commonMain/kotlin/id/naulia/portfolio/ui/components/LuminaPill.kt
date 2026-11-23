@@ -37,6 +37,7 @@ enum class PillTone {
     Tertiary,
     Spotlight,
     Available,
+    Inverse,
 }
 
 private data class PillColors(val container: Color, val content: Color)
@@ -48,6 +49,7 @@ private fun PillTone.colors(colors: LuminaColorScheme): PillColors = when (this)
     PillTone.Tertiary -> PillColors(colors.tertiaryContainer.copy(alpha = 0.3f), colors.onTertiaryContainer)
     PillTone.Spotlight -> PillColors(colors.secondaryContainer, colors.onSecondaryContainer)
     PillTone.Available -> PillColors(colors.tertiaryContainer.copy(alpha = 0.2f), colors.onSurface)
+    PillTone.Inverse -> PillColors(colors.inverseSurface.copy(alpha = INVERSE_PILL_ALPHA), colors.inverseOnSurface)
 }
 
 @Composable
@@ -148,6 +150,7 @@ private fun PulsingDot(color: Color) {
     ) {}
 }
 
+private const val INVERSE_PILL_ALPHA = 0.8f
 private const val PULSE_MIN_ALPHA = 0.35f
 private const val PULSE_MAX_ALPHA = 1f
 private const val PULSE_DURATION_MS = 1400

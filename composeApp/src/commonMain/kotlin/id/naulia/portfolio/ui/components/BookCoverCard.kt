@@ -2,10 +2,9 @@ package id.naulia.portfolio.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -33,10 +31,8 @@ import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
-import id.naulia.portfolio.ui.theme.badgeColor
-import id.naulia.portfolio.ui.theme.badgeContentColor
+import id.naulia.portfolio.ui.theme.badgeTone
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BookCoverCard(
     book: Book,
@@ -48,6 +44,7 @@ fun BookCoverCard(
         Brush.linearGradient(listOf(colors.secondaryContainer, colors.tertiaryContainer))
     }
     val coverBitmap = rememberImageBitmap(book.coverAsset)
+    val role = book.roles.firstOrNull()?.displayBadge.orEmpty()
 
     LuminaCard(
         modifier = modifier,
@@ -78,24 +75,33 @@ fun BookCoverCard(
                     modifier = Modifier.padding(LuminaDimens.spacing.md),
                 )
             }
+            StatusPill(
+                label = book.category.label,
+                tone = book.category.badgeTone(),
+                showPulseDot = false,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(LuminaDimens.spacing.sm),
+            )
+            StatusPill(
+                label = book.ageRange.displayName,
+                tone = PillTone.Inverse,
+                showPulseDot = false,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(LuminaDimens.spacing.sm),
+            )
         }
         Spacer(Modifier.height(LuminaDimens.spacing.sm))
         Column(
             modifier = Modifier.padding(horizontal = LuminaDimens.spacing.xs),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.xs),
         ) {
-            Surface(
-                shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
-                color = book.publisher.badgeColor(colors),
-            ) {
+            if (role.isNotBlank()) {
                 Text(
-                    text = book.publisher.displayName,
+                    text = role.uppercase(),
                     style = type.labelSm,
-                    color = book.publisher.badgeContentColor(colors),
-                    modifier = Modifier.padding(
-                        horizontal = LuminaDimens.spacing.sm,
-                        vertical = LuminaDimens.spacing.xs,
-                    ),
+                    color = colors.primary,
                 )
             }
             Text(
@@ -104,28 +110,33 @@ fun BookCoverCard(
                 color = colors.onSurface,
                 maxLines = MAX_TITLE_LINES,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = LuminaDimens.spacing.xs),
             )
+            if (book.synopsis.isNotBlank()) {
+                Text(
+                    text = book.synopsis,
+                    style = type.bodySm,
+                    color = colors.onSurfaceVariant,
+                    maxLines = MAX_SYNOPSIS_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(Modifier.height(LuminaDimens.spacing.xs))
             Text(
-                text = book.ageRange.displayName,
-                style = type.bodySm,
+                text = BookCoverCardStrings.metadata(book.publisher.displayName, book.pageCount, book.year),
+                style = type.labelSm,
                 color = colors.onSurfaceVariant,
             )
-            FlowRow(
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
-                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xs),
-            ) {
-                book.roles.forEach { role ->
-                    StatusPill(label = role.displayBadge, tone = PillTone.Secondary, showPulseDot = false)
-                }
-            }
         }
     }
 }
 
-private const val COVER_ASPECT_RATIO = 3f / 4f
+private const val COVER_ASPECT_RATIO = 4f / 3f
 private const val MAX_TITLE_LINES = 2
+private const val MAX_SYNOPSIS_LINES = 2
 
 private object BookCoverCardStrings {
     fun coverDescription(title: String): String = "Sampul buku: $title"
+
+    fun metadata(publisher: String, pageCount: Int?, year: Int): String =
+        if (pageCount != null) "$publisher • $pageCount Hal" else "$publisher • $year"
 }

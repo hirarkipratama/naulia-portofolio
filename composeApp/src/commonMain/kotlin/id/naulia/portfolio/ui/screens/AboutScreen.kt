@@ -1,14 +1,19 @@
 package id.naulia.portfolio.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,27 +24,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontStyle
-import id.naulia.portfolio.ui.components.LuminaCard
+import id.naulia.portfolio.ui.components.CapabilityCard
+import id.naulia.portfolio.ui.components.CapabilityTone
 import id.naulia.portfolio.ui.components.PillTone
-import id.naulia.portfolio.ui.components.SectionHeader
-import id.naulia.portfolio.ui.components.StatusPill
+import id.naulia.portfolio.ui.components.SectionEyebrow
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AboutScreen(
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalLuminaColors.current
     val isMobile = rememberIsMobile()
     var isEnglish by remember { mutableStateOf(false) }
     val copy = if (isEnglish) BioStrings.english else BioStrings.bahasa
@@ -48,17 +53,19 @@ fun AboutScreen(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.spacing.xl,
+                horizontal = LuminaDimens.margin.mobile,
                 vertical = LuminaDimens.spacing.xxl,
             ),
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            SectionHeader(
-                title = if (isEnglish) BioStrings.TITLE_ENGLISH else BioStrings.TITLE_BAHASA,
-                subtitle = if (isEnglish) BioStrings.SUBTITLE_ENGLISH else BioStrings.SUBTITLE_BAHASA,
-                eyebrow = BioStrings.EYEBROW,
-                eyebrowIcon = LuminaIcons.Person,
-                modifier = Modifier.weight(LANGUAGE_HEADER_WEIGHT),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionEyebrow(
+                text = BioStrings.EYEBROW,
+                icon = LuminaIcons.Idea,
+                tone = PillTone.Neutral,
             )
             LanguageToggle(
                 isEnglish = isEnglish,
@@ -66,77 +73,133 @@ fun AboutScreen(
             )
         }
 
-        LuminaCard(
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = colors.secondaryContainer.copy(alpha = QUOTE_CONTAINER_ALPHA),
-        ) {
-            Column(modifier = Modifier.padding(LuminaDimens.spacing.lg)) {
-                Text(
-                    text = BioStrings.QUOTE_MARK,
-                    style = LocalLuminaTypeScale.current.quoteMark.copy(fontStyle = FontStyle.Italic),
-                    color = colors.primary,
-                )
-                Text(
-                    text = copy.missionQuote,
-                    style = LocalLuminaTypeScale.current.headlineMd,
-                    color = colors.onSurface,
-                )
-                Spacer(Modifier.height(LuminaDimens.spacing.sm))
-                Text(
-                    text = copy.attribution,
-                    style = LocalLuminaTypeScale.current.bodyLg.copy(fontStyle = FontStyle.Italic),
-                    color = colors.primary,
-                )
-            }
-        }
-
-        Spacer(Modifier.height(LuminaDimens.spacing.xl))
+        Spacer(Modifier.height(LuminaDimens.spacing.md))
         if (isMobile) {
-            PhilosophyColumn(copy.philosophyHeading, copy.philosophyParagraphs)
-            Spacer(Modifier.height(LuminaDimens.spacing.lg))
-            PhilosophyColumn(copy.stageHeading, copy.stageParagraphs)
+            NarrativeColumn(copy = copy)
+            Spacer(Modifier.height(LuminaDimens.spacing.xl))
+            CapabilityGrid(capabilities = copy.capabilities)
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.xl),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.xl),
             ) {
-                PhilosophyColumn(
-                    heading = copy.philosophyHeading,
-                    paragraphs = copy.philosophyParagraphs,
+                NarrativeColumn(
+                    copy = copy,
                     modifier = Modifier.weight(NARRATIVE_WEIGHT),
                 )
-                PhilosophyColumn(
-                    heading = copy.stageHeading,
-                    paragraphs = copy.stageParagraphs,
-                    modifier = Modifier.weight(NARRATIVE_WEIGHT),
+                CapabilityGrid(
+                    capabilities = copy.capabilities,
+                    modifier = Modifier.weight(CAPABILITY_WEIGHT),
                 )
             }
         }
+    }
+}
 
-        Spacer(Modifier.height(LuminaDimens.spacing.xl))
+@Composable
+private fun NarrativeColumn(
+    copy: BioCopy,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
+    Column(modifier = modifier) {
         Text(
-            text = if (isEnglish) BioStrings.CAPABILITIES_ENGLISH else BioStrings.CAPABILITIES_BAHASA,
-            style = LocalLuminaTypeScale.current.headlineMd,
+            text = copy.title,
+            style = type.headlineLg,
             color = colors.onSurface,
         )
-        Spacer(Modifier.height(LuminaDimens.spacing.md))
-        FlowRow(
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.sm),
+        Spacer(Modifier.height(LuminaDimens.spacing.sm))
+        copy.narrativeParagraphs.forEach { paragraph ->
+            Text(
+                text = paragraph,
+                style = type.bodyMd,
+                color = colors.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(LuminaDimens.spacing.sm))
+        }
+        Spacer(Modifier.height(LuminaDimens.spacing.xs))
+        QuoteBlock(quote = copy.quote, attribution = copy.attribution)
+    }
+}
+
+@Composable
+private fun QuoteBlock(
+    quote: String,
+    attribution: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(LuminaDimens.radius.lg),
+        color = colors.secondaryContainer.copy(alpha = QUOTE_CONTAINER_ALPHA),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(LuminaDimens.spacing.md)
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.md),
         ) {
-            copy.capabilities.forEachIndexed { index, capability ->
-                val tone = when (index % CAPABILITY_COLOR_COUNT) {
-                    0 -> PillTone.Primary
-                    1 -> PillTone.Spotlight
-                    else -> PillTone.Tertiary
-                }
-                StatusPill(
-                    label = capability.label,
-                    icon = capability.icon,
-                    tone = tone,
-                    showPulseDot = false,
-                    modifier = Modifier.semantics { contentDescription = capability.label },
+            Box(
+                modifier = Modifier
+                    .width(LuminaDimens.size.cardAccent)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(LuminaDimens.radius.sm))
+                    .background(colors.secondary),
+            )
+            Column {
+                Text(
+                    text = "$QUOTE_MARK$quote",
+                    style = type.bodyMd.copy(fontStyle = FontStyle.Italic),
+                    color = colors.onSurface,
                 )
+                Spacer(Modifier.height(LuminaDimens.spacing.xs))
+                Text(
+                    text = attribution,
+                    style = type.labelSm,
+                    color = colors.secondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CapabilityGrid(
+    capabilities: List<BioCapability>,
+    modifier: Modifier = Modifier,
+) {
+    val isMobile = rememberIsMobile()
+    Column(modifier = modifier) {
+        if (isMobile) {
+            capabilities.forEachIndexed { index, capability ->
+                CapabilityCard(
+                    icon = capability.icon,
+                    title = capability.label,
+                    description = capability.description,
+                    tone = CapabilityCardStrings.tone(index),
+                )
+                Spacer(Modifier.height(LuminaDimens.spacing.sm))
+            }
+        } else {
+            capabilities.chunked(CAPABILITY_COLUMNS).forEachIndexed { rowIndex, row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
+                ) {
+                    row.forEachIndexed { columnIndex, capability ->
+                        CapabilityCard(
+                            icon = capability.icon,
+                            title = capability.label,
+                            description = capability.description,
+                            tone = CapabilityCardStrings.tone(rowIndex * CAPABILITY_COLUMNS + columnIndex),
+                            modifier = Modifier.weight(CAPABILITY_WEIGHT),
+                        )
+                    }
+                }
+                Spacer(Modifier.height(LuminaDimens.spacing.sm))
             }
         }
     }
@@ -149,63 +212,59 @@ private fun LanguageToggle(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
+    val type = LocalLuminaTypeScale.current
     Surface(
         modifier = modifier
             .clickable { onToggle() }
             .semantics {
                 role = Role.Button
                 contentDescription = BioStrings.TOGGLE_DESCRIPTION
+                stateDescription = if (isEnglish) {
+                    BioStrings.TOGGLE_STATE_ENGLISH
+                } else {
+                    BioStrings.TOGGLE_STATE_BAHASA
+                }
             },
         shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill),
         color = colors.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(LuminaDimens.size.thinBorder, colors.outlineVariant),
+        border = BorderStroke(LuminaDimens.size.thinBorder, colors.outlineVariant),
     ) {
-        Row(modifier = Modifier.padding(horizontal = LuminaDimens.spacing.sm, vertical = LuminaDimens.spacing.xs)) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = LuminaDimens.spacing.sm,
+                vertical = LuminaDimens.spacing.xs,
+            ),
+        ) {
             Text(
                 text = BioStrings.TOGGLE_BAHASA,
-                style = LocalLuminaTypeScale.current.labelSm,
+                style = type.labelSm,
                 color = if (isEnglish) colors.onSurfaceVariant else colors.primary,
             )
             Text(
                 text = BioStrings.TOGGLE_SEPARATOR,
-                style = LocalLuminaTypeScale.current.labelSm,
+                style = type.labelSm,
                 color = colors.onSurfaceVariant,
             )
             Text(
                 text = BioStrings.TOGGLE_ENGLISH,
-                style = LocalLuminaTypeScale.current.labelSm,
+                style = type.labelSm,
                 color = if (isEnglish) colors.primary else colors.onSurfaceVariant,
             )
         }
     }
 }
 
-@Composable
-private fun PhilosophyColumn(
-    heading: String,
-    paragraphs: List<String>,
-    modifier: Modifier = Modifier,
-) {
-    val colors = LocalLuminaColors.current
-    Column(modifier = modifier) {
-        Text(
-            text = heading,
-            style = LocalLuminaTypeScale.current.headlineMd,
-            color = colors.primary,
-        )
-        Spacer(Modifier.height(LuminaDimens.spacing.md))
-        paragraphs.forEach { paragraph ->
-            Text(
-                text = paragraph,
-                style = LocalLuminaTypeScale.current.bodyLg,
-                color = colors.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(LuminaDimens.spacing.sm))
-        }
-    }
-}
+private const val QUOTE_MARK = "“"
+private const val QUOTE_CONTAINER_ALPHA = 0.2f
+private const val NARRATIVE_WEIGHT = 5f
+private const val CAPABILITY_WEIGHT = 7f
+private const val CAPABILITY_COLUMNS = 2
+private val CAPABILITY_TONES = listOf(
+    CapabilityTone.Primary,
+    CapabilityTone.Secondary,
+    CapabilityTone.Tertiary,
+)
 
-private const val NARRATIVE_WEIGHT = 1f
-private const val LANGUAGE_HEADER_WEIGHT = 1f
-private const val CAPABILITY_COLOR_COUNT = 3
-private const val QUOTE_CONTAINER_ALPHA = 0.25f
+private object CapabilityCardStrings {
+    fun tone(index: Int): CapabilityTone = CAPABILITY_TONES[index % CAPABILITY_TONES.size]
+}

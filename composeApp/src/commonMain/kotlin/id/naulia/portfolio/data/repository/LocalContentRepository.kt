@@ -4,6 +4,7 @@ import id.naulia.portfolio.data.model.AgeRange
 import id.naulia.portfolio.data.model.AudioCategory
 import id.naulia.portfolio.data.model.AudioTrack
 import id.naulia.portfolio.data.model.Book
+import id.naulia.portfolio.data.model.BookCategory
 import id.naulia.portfolio.data.model.EditorRole
 import id.naulia.portfolio.data.model.McEvent
 import id.naulia.portfolio.data.model.PortfolioMetrics
@@ -95,82 +96,100 @@ class LocalContentRepository : ContentRepository {
             id = "book_01",
             title = "Ensiklopedia Cilik Nusantara: Hewan Ternak",
             publisher = Publisher.BIP,
+            category = BookCategory.ENSIKLOPEDIA,
             ageRange = AgeRange.AGE_4_8,
             roles = listOf(EditorRole.DEVELOPMENTAL_EDITOR),
             coverAsset = "images/projects/books/Ensiklopedia_Cilik_Nusantara_Hewan_Ternak.webp",
             year = 2023,
+            synopsis = "Ensiklopedia bergambar tentang hewan ternak di Nusantara, disajikan dengan kosakata ramah anak dan fakta singkat yang mudah diingat.",
         ),
         Book(
             id = "book_02",
             title = "Ensiklopedia Anak Hebat: Tumbuhan",
             publisher = Publisher.BIP,
+            category = BookCategory.ENSIKLOPEDIA,
             ageRange = AgeRange.AGE_7_12,
             roles = listOf(EditorRole.STEM_FACT_CHECKER, EditorRole.DEVELOPMENTAL_EDITOR),
             coverAsset = "images/projects/books/Ensiklopedia_Anak_Hebat_Tumbuhan.webp",
             year = 2023,
+            synopsis = "Menjelajahi dunia tumbuhan lewat ilustrasi dan penjelasan tentang pertumbuhan, bagian tanaman, dan perannya dalam kehidupan sehari-hari.",
         ),
         Book(
             id = "book_03",
             title = "5 Menit Mengenal Laut Fantastis",
             publisher = Publisher.GRAMEDIA,
+            category = BookCategory.SAINS,
             ageRange = AgeRange.AGE_4_8,
             roles = listOf(EditorRole.STEM_FACT_CHECKER),
             coverAsset = "images/projects/books/5_Menit_Mengenal_Laut_Fantastis.webp",
             year = 2022,
+            synopsis = "Perjalanan singkat ke bawah laut yang memperkenalkan makhluk laut dan ekosistemnya lewat bahasa sederhana dan ilustrasi ceria.",
         ),
         Book(
             id = "book_04",
             title = "Ensiklopedia Cilik Nusantara: Bandara",
             publisher = Publisher.BIP,
+            category = BookCategory.ENSIKLOPEDIA,
             ageRange = AgeRange.AGE_4_8,
             roles = listOf(EditorRole.DEVELOPMENTAL_EDITOR, EditorRole.LANGUAGE_CONSULTANT),
             coverAsset = "images/projects/books/Ensiklopedia_Cilik_Nusantara_Bandara.webp",
             year = 2024,
+            synopsis = "Mengenal bandara, pesawat, dan proses perjalanan udara melalui gambar serta penjelasan yang sesuai untuk pembaca usia dini.",
         ),
         Book(
             id = "book_05",
             title = "The Empathy Effect",
             publisher = Publisher.GRAMEDIA,
+            category = BookCategory.BUKU_CERITA,
             ageRange = AgeRange.AGE_7_12,
             roles = listOf(EditorRole.DEVELOPMENTAL_EDITOR),
             coverAsset = "images/projects/books/The_Empathy_Effect.webp",
             year = 2024,
+            synopsis = "Sebuah cerita tentang empati dan keberanian memahami perasaan orang lain, dikemas dengan ritme yang hangat dan dekat dengan anak.",
         ),
         Book(
             id = "book_06",
             title = "Brain Power",
             publisher = Publisher.GRAMEDIA,
+            category = BookCategory.SAINS,
             ageRange = AgeRange.AGE_7_12,
             roles = listOf(EditorRole.STEM_FACT_CHECKER),
             coverAsset = "images/projects/books/Brain_Power.webp",
             year = 2023,
+            synopsis = "Mengajak anak memahami cara kerja otak, ingatan, dan konsentrasi melalui analogi yang akrab dengan keseharian mereka.",
         ),
         Book(
             id = "book_07",
             title = "Ensiklopedia Cilik Nusantara: Gunung Api",
             publisher = Publisher.BIP,
+            category = BookCategory.ENSIKLOPEDIA,
             ageRange = AgeRange.AGE_7_12,
             roles = listOf(EditorRole.STEM_FACT_CHECKER),
             coverAsset = "images/projects/books/Ensiklopedia_Cilik_Nusantara_Gunung_Api.webp",
             year = 2023,
+            synopsis = "Fakta geologi gunung api disederhanakan menjadi penjelasan yang jelas tentang letusan, lapisan bumi, dan manfaatnya bagi lingkungan.",
         ),
         Book(
             id = "book_08",
             title = "Hiu, Sang Predator Lautan",
             publisher = Publisher.ERLANGGA,
+            category = BookCategory.SAINS,
             ageRange = AgeRange.AGE_7_12,
             roles = listOf(EditorRole.STEM_FACT_CHECKER),
             coverAsset = "images/projects/books/Hiu,_Sang_Predator_Lautan.webp",
             year = 2023,
+            synopsis = "Mengenal keanekaragaman hiu, perilaku berburu, dan peran pentingnya dalam menjaga keseimbangan ekosistem laut.",
         ),
         Book(
             id = "book_09",
             title = "Ensiklopedia Aku Ingin Tahu: Alam Sekitar",
             publisher = Publisher.MIZAN,
+            category = BookCategory.ENSIKLOPEDIA,
             ageRange = AgeRange.AGE_4_8,
             roles = listOf(EditorRole.DEVELOPMENTAL_EDITOR),
             coverAsset = "images/projects/books/Ensiklopedia_Aku_Ingin_Tahu_Alam_Sekitar.webp",
             year = 2022,
+            synopsis = "Rangkaian fakta alam sekitar—cuaca, musim, dan makhluk di sekitar rumah—yang memantik rasa ingin tahu pembaca muda.",
         ),
     )
 
@@ -183,7 +202,9 @@ class LocalContentRepository : ContentRepository {
             city = "Jakarta",
             estimatedAttendees = 300,
             photoAsset = "images/projects/events/MC_Ulang_Tahun_Penerbit_BIP_32.webp",
-            tags = listOf("MC", "Penerbitan"),
+            tags = listOf("Manajemen Audiens Anak", "Mendongeng Interaktif", "Bilingual ID/EN"),
+            role = "Pemandu Panggung Utama & Pencerita",
+            description = "Memandu perayaan ulang tahun penerbit dengan sesi mendongeng interaktif, peluncuran buku anak, dan kuis panggung yang penuh keceriaan.",
         ),
         McEvent(
             id = "event_02",
@@ -193,7 +214,9 @@ class LocalContentRepository : ContentRepository {
             city = "Jakarta",
             estimatedAttendees = 500,
             photoAsset = "images/projects/events/Moderator_Islamic_Book_Fair_Launching_Buku_30_Kisah_Nabi_Muhammad_SAW.webp",
-            tags = listOf("Moderator", "Book Fair"),
+            tags = listOf("Fasilitasi Panel", "Peluncuran Buku", "Bilingual ID/EN"),
+            role = "Moderator Diskusi Panel",
+            description = "Memfasilitasi diskusi peluncuran buku dengan transisi yang hangat, pertanyaan yang memantik rasa ingin tahu, dan ringkasan ide yang mudah dicerna pembaca muda.",
         ),
         McEvent(
             id = "event_03",
@@ -267,13 +290,7 @@ class LocalContentRepository : ContentRepository {
         ),
     )
 
-    private val metrics = PortfolioMetrics(
-        totalEvents = 50,
-        officialPartners = "Mitra Resmi Gramedia",
-        audiobooksProduced = 10,
-        clientRetentionPct = 98,
-        titlesEdited = 15,
-    )
+    private val metrics = PortfolioMetrics.DEFAULT
 
     override fun getAudioTracks(): List<AudioTrack> = audioTracks
 

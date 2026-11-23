@@ -9,4 +9,14 @@ data class PortfolioMetrics(
     val audiobooksProduced: Int,
     val clientRetentionPct: Int,
     val titlesEdited: Int,
-)
+) {
+    companion object {
+        val DEFAULT = PortfolioMetrics(
+            totalEvents = 50,
+            officialPartners = "Gramedia",
+            audiobooksProduced = 10,
+            clientRetentionPct = 98,
+            titlesEdited = 15,
+        )
+    }
+}

@@ -521,6 +521,193 @@ object LuminaIcons {
         }
     }.build()
 
+    val Idea: ImageVector = ImageVector.Builder(
+        name = "Idea",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(12f, 2f)
+            curveTo(8.13f, 2f, 5f, 5.13f, 5f, 9f)
+            curveTo(5f, 11.38f, 6.19f, 13.46f, 8f, 14.83f)
+            verticalLineTo(17f)
+            horizontalLineTo(16f)
+            verticalLineTo(14.83f)
+            curveTo(17.81f, 13.46f, 19f, 11.38f, 19f, 9f)
+            curveTo(19f, 5.13f, 15.87f, 2f, 12f, 2f)
+            close()
+            moveTo(9f, 20f)
+            horizontalLineTo(15f)
+            verticalLineTo(22f)
+            horizontalLineTo(9f)
+            close()
+        }
+    }.build()
+
+    val RecordVoiceOver: ImageVector = ImageVector.Builder(
+        name = "RecordVoiceOver",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(12f, 14f)
+            curveTo(13.66f, 14f, 15f, 12.66f, 15f, 11f)
+            verticalLineTo(6f)
+            curveTo(15f, 4.34f, 13.66f, 3f, 12f, 3f)
+            curveTo(10.34f, 3f, 9f, 4.34f, 9f, 6f)
+            verticalLineTo(11f)
+            curveTo(9f, 12.66f, 10.34f, 14f, 12f, 14f)
+            close()
+            moveTo(7f, 11f)
+            horizontalLineTo(5f)
+            curveTo(5f, 14.87f, 8.13f, 18f, 12f, 18f)
+            curveTo(15.87f, 18f, 19f, 14.87f, 19f, 11f)
+            horizontalLineTo(17f)
+            curveTo(17f, 13.76f, 14.76f, 16f, 12f, 16f)
+            curveTo(9.24f, 16f, 7f, 13.76f, 7f, 11f)
+            close()
+            moveTo(11f, 19f)
+            horizontalLineTo(13f)
+            verticalLineTo(22f)
+            horizontalLineTo(11f)
+            close()
+        }
+    }.build()
+
+    val Forum: ImageVector = ImageVector.Builder(
+        name = "Forum",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(4f, 4f)
+            horizontalLineTo(16f)
+            curveTo(17.1f, 4f, 18f, 4.9f, 18f, 6f)
+            verticalLineTo(13f)
+            curveTo(18f, 14.1f, 17.1f, 15f, 16f, 15f)
+            horizontalLineTo(8f)
+            lineTo(4f, 18f)
+            verticalLineTo(4f)
+            close()
+            moveTo(20f, 8f)
+            horizontalLineTo(22f)
+            verticalLineTo(17f)
+            lineTo(18f, 17f)
+            lineTo(18f, 20f)
+            lineTo(14f, 17f)
+            horizontalLineTo(10f)
+            verticalLineTo(15f)
+            horizontalLineTo(16f)
+            curveTo(18.21f, 15f, 20f, 13.21f, 20f, 11f)
+            close()
+        }
+    }.build()
+
+    val Palette: ImageVector = ImageVector.Builder(
+        name = "Palette",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(12f, 3f)
+            curveTo(7.03f, 3f, 3f, 7.03f, 3f, 12f)
+            curveTo(3f, 16.97f, 7.03f, 21f, 12f, 21f)
+            curveTo(13.1f, 21f, 14f, 20.1f, 14f, 19f)
+            curveTo(14f, 18.45f, 13.78f, 17.95f, 13.4f, 17.6f)
+            curveTo(13.14f, 17.35f, 13f, 17f, 13f, 16.6f)
+            curveTo(13f, 15.72f, 13.72f, 15f, 14.6f, 15f)
+            horizontalLineTo(17f)
+            curveTo(19.21f, 15f, 21f, 13.21f, 21f, 11f)
+            curveTo(21f, 6.58f, 16.97f, 3f, 12f, 3f)
+            close()
+        }
+    }.build()
+
+    val Location: ImageVector = ImageVector.Builder(
+        name = "Location",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(12f, 2f)
+            curveTo(8.13f, 2f, 5f, 5.13f, 5f, 9f)
+            curveTo(5f, 14.25f, 12f, 22f, 12f, 22f)
+            curveTo(12f, 22f, 19f, 14.25f, 19f, 9f)
+            curveTo(19f, 5.13f, 15.87f, 2f, 12f, 2f)
+            close()
+            moveTo(12f, 11.5f)
+            curveTo(10.62f, 11.5f, 9.5f, 10.38f, 9.5f, 9f)
+            curveTo(9.5f, 7.62f, 10.62f, 6.5f, 12f, 6.5f)
+            curveTo(13.38f, 6.5f, 14.5f, 7.62f, 14.5f, 9f)
+            curveTo(14.5f, 10.38f, 13.38f, 11.5f, 12f, 11.5f)
+            close()
+        }
+    }.build()
+
+    val Library: ImageVector = ImageVector.Builder(
+        name = "Library",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(3f, 4f)
+            horizontalLineTo(5f)
+            verticalLineTo(18f)
+            horizontalLineTo(3f)
+            close()
+            moveTo(7f, 4f)
+            horizontalLineTo(9f)
+            verticalLineTo(18f)
+            horizontalLineTo(7f)
+            close()
+            moveTo(11f, 5f)
+            lineTo(13f, 4f)
+            lineTo(16f, 18f)
+            lineTo(14f, 19f)
+            close()
+            moveTo(2f, 20f)
+            horizontalLineTo(18f)
+            verticalLineTo(22f)
+            horizontalLineTo(2f)
+            close()
+        }
+    }.build()
+
+    val School: ImageVector = ImageVector.Builder(
+        name = "School",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.White)) {
+            moveTo(12f, 3f)
+            lineTo(1f, 9f)
+            lineTo(12f, 15f)
+            lineTo(23f, 9f)
+            close()
+            moveTo(5f, 13f)
+            verticalLineTo(17f)
+            curveTo(5f, 18.66f, 8.13f, 20f, 12f, 20f)
+            curveTo(15.87f, 20f, 19f, 18.66f, 19f, 17f)
+            verticalLineTo(13f)
+            lineTo(12f, 16.5f)
+            close()
+        }
+    }.build()
+
     val Schedule: ImageVector = ImageVector.Builder(
         name = "Schedule",
         defaultWidth = 24.dp,

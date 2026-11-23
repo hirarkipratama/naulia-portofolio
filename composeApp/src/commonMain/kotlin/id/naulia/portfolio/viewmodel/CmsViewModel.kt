@@ -1,5 +1,6 @@
 package id.naulia.portfolio.viewmodel
 
+import id.naulia.portfolio.data.model.BookFilter
 import id.naulia.portfolio.data.repository.ContentRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,10 @@ class CmsViewModel(
 
     fun refresh() {
         loadContent()
+    }
+
+    fun selectBookFilter(filter: BookFilter) {
+        _contentState.update { it.copy(selectedBookFilter = filter) }
     }
 
     private fun loadContent() {

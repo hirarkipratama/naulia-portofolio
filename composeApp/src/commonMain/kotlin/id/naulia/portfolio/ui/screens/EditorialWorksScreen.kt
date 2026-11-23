@@ -1,11 +1,14 @@
 package id.naulia.portfolio.ui.screens
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,8 +17,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import id.naulia.portfolio.data.model.BookFilter
+import id.naulia.portfolio.data.model.filterByCategory
 import id.naulia.portfolio.ui.components.BookCoverCard
+import id.naulia.portfolio.ui.components.LuminaFilterChip
 import id.naulia.portfolio.ui.components.PillTone
 import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.icons.LuminaIcons
@@ -34,8 +39,16 @@ fun EditorialWorksScreen(
     val colors = LocalLuminaColors.current
     val windowWidth = rememberWindowWidth()
     val columnCount = remember(windowWidth) {
-        if (windowWidth < LuminaDimens.Breakpoints.tablet) MOBILE_COLUMNS else DESKTOP_COLUMNS
+        when {
+            windowWidth < LuminaDimens.Breakpoints.mobile -> NARROW_COLUMNS
+            windowWidth < LuminaDimens.Breakpoints.desktop -> TABLET_COLUMNS
+            else -> DESKTOP_COLUMNS
+        }
     }
+    val books = remember(contentState.books, contentState.selectedBookFilter) {
+        contentState.books.filterByCategory(contentState.selectedBookFilter)
+    }
+    val bookRows = remember(books, columnCount) { books.chunked(columnCount) }
 
     Column(
         modifier = modifier
@@ -52,6 +65,21 @@ fun EditorialWorksScreen(
             eyebrowIcon = LuminaIcons.Book,
             eyebrowTone = PillTone.Secondary,
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
+        ) {
+            BookFilter.entries.forEach { filter ->
+                LuminaFilterChip(
+                    label = filter.label,
+                    selected = filter == contentState.selectedBookFilter,
+                    onClick = { cmsViewModel.selectBookFilter(filter) },
+                )
+            }
+        }
+        Spacer(Modifier.height(LuminaDimens.spacing.md))
         if (contentState.isLoading) {
             CircularProgressIndicator(color = colors.primary)
         }
@@ -62,15 +90,13 @@ fun EditorialWorksScreen(
                 color = colors.onSurfaceVariant,
             )
         }
-
-        val books = contentState.books
-        for (startIndex in books.indices step columnCount) {
+        bookRows.forEach { rowBooks ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(LuminaDimens.spacing.md),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.gutter.desktop),
                 verticalAlignment = Alignment.Top,
             ) {
-                books.drop(startIndex).take(columnCount).forEach { book ->
+                rowBooks.forEach { book ->
                     BookCoverCard(
                         book = book,
                         modifier = Modifier.weight(BOOK_WEIGHT),
@@ -79,45 +105,17 @@ fun EditorialWorksScreen(
             }
             Spacer(Modifier.height(LuminaDimens.spacing.md))
         }
-
-        Spacer(Modifier.height(LuminaDimens.spacing.lg))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
-        ) {
-            EditorialStats.forEach { stat ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = stat.value,
-                        style = LocalLuminaTypeScale.current.headlineLg,
-                        color = colors.primary,
-                    )
-                    Text(
-                        text = stat.label,
-                        style = LocalLuminaTypeScale.current.labelMd,
-                        color = colors.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-            }
-        }
     }
 }
 
-private data class EditorialStat(val value: String, val label: String)
-
-private val EditorialStats = listOf(
-    EditorialStat("15+", "Judul Buku"),
-    EditorialStat("4", "Penerbit"),
-    EditorialStat("2022–2024", "Tahun Terbit"),
-)
-
-private const val MOBILE_COLUMNS = 2
+private const val NARROW_COLUMNS = 1
+private const val TABLET_COLUMNS = 2
 private const val DESKTOP_COLUMNS = 3
 private const val BOOK_WEIGHT = 1f
 
 private object EditorialWorksStrings {
-    const val EYEBROW = "LITERATUR ANAK & SAINS"
+    const val EYEBROW = "📖 LITERATUR ANAK & SAINS"
     const val TITLE = "Pilihan Karya Editorial & Buku"
-    const val SUBTITLE = "Buku Anak & STEM yang Pernah Diedit"
+    const val SUBTITLE =
+        "Dari kurasi konsep ilmiah hingga ritme penuturan karakter—membidani buku-buku berharga bagi generasi penerus."
 }

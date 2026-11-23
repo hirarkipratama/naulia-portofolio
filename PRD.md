@@ -65,7 +65,7 @@ Internal `NavSection` IDs remain stable; reference anchor IDs are exposed via th
 - **Contact chips:** four service chips (`Editor Buku`, `MC Acara / Moderator`, `Voice Over Karakter`, `Kolaborasi Lengkap`); multi-select with selected/unselected styling, `role`/`stateDescription` semantics, and at least one required for valid submission.
 - **Contact form:** pure validation (name non-blank; email or `08…`/`+62…` WhatsApp; ≥1 service; scope ≥10 chars) with inline field errors; submission states Idle → Loading → Success/Error; success copy "Pesan Terkirim! Terima Kasih ✨" or owner-approved equivalent; endpoint and contact handles come from config, not screen literals.
 - **Keyboard & focus:** visible focus rings on nav, chips, buttons, inputs and audio controls; play/pause and seek are keyboard operable; all clickable non-button surfaces carry `Role`/`contentDescription`/`stateDescription` per R3.9.
-- **Mobile ergonomics:** sticky bottom bar with exactly **6** thumb-friendly destinations — `Beranda`, `Buku Suara`, `Buku`, `Acara`, `Profil`, `Kontak` (from `NavSection.all`); no section is removed to satisfy the older 5-destination draft. Book and metric grids use 2 columns on mobile to reduce vertical fatigue.
+- **Mobile ergonomics:** sticky bottom bar with exactly **6** thumb-friendly destinations — `Beranda`, `Buku Suara`, `Buku`, `Acara`, `Profil`, `Kontak` (from `NavSection.all`); no section is removed to satisfy the older 5-destination draft. Book grid uses 1 column on mobile, 2 on tablet and 3 on desktop; metric grid uses 2×2 on mobile and 4 columns on desktop.
 
 **Acceptance criteria (interaction)**
 - [ ] Audio: one active player; scrub/seek, end state, filter reset, equalizer + reduced motion, keyboard control all verified in browser.
@@ -135,8 +135,11 @@ Reference frontmatter (`reference/DESIGN.md:3-135`) is canonical; the prose "Pal
 1. **Completed (pre-CR):** KMP scaffold + single `wasmJs` target; six-section Compose UI; 11-token Lumina theme; 7 audio tracks with single-active-player/scrubber; 9 books; 9 events + 4 metrics; About ID/EN toggle; contact form with pure validation and Ktor POST scaffold; local `LocalContentRepository`; scroll-spy and WASM build/deploy pipeline.
 2. **Completed (CR1, 2026-11-23):** `docs/change-request/CR-AUDIT.md` records scope, D1–D7 decisions, gap checklist, risks and acceptance criteria; no app code changed.
 3. **Completed (CR2, 2026-11-23):** PRD (this document) and `PLAN.md` aligned to reference + audit decisions; documentation-only, no runtime behavior changed.
-4. **Change Request backlog (CR3–CR7):** CR3 theme tokens + primitives; CR4 hero + audio parity; CR5 books/MC/About parity; CR6 contact/nav/footer/assets; CR7 QA, a11y and final doc sync. Detailed tasks and status live in `PLAN.md` §9.
-5. **Future / deferred:** configured Formspree or equivalent integration; CMS admin UI + remote content; case-study detail overlays; site-wide ID/EN localization with owner-owned translations; hero layered studio card (deferred in CR4.1).
+4. **Completed (CR3, 2026-11-23):** full Curated Lumina token system plus shared button/card/chip/input primitives.
+5. **Completed (CR4, 2026-11-23):** hero reference copy/badges/portrait caption and audio reference cards with playback behavior preserved.
+6. **Completed (CR5, 2026-11-23):** editorial filters + reference metadata/grid for all 9 books; MC centered header, 4 metric cards, 2 wide event showcases and text/icon trusted-client row; About two-column layout with 6 capability cards, quote block and accessible About-only ID/EN toggle. `pageCount` is a nullable model field with no verified seed values, so cards fall back to publisher/year metadata. `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
+7. **Change Request backlog (CR6–CR7):** CR6 contact/nav/footer/assets; CR7 QA, a11y and final doc sync. Detailed tasks and status live in `PLAN.md` §9.
+8. **Future / deferred:** configured Formspree or equivalent integration; CMS admin UI + remote content; case-study detail overlays; site-wide ID/EN localization with owner-owned translations; hero layered studio card (deferred in CR4.1).
 
 ---
 
@@ -148,11 +151,11 @@ Binding decisions from `docs/change-request/CR-AUDIT.md`; rationale is recorded 
 |---|---|---|
 | D1 / D2 — Adopt Reference | None intended. Replaces Outfit-only type and the 11-token old palette with the full Curated Lumina system. | CR3.1 |
 | D3 — Hybrid (Audio) | Category filter tabs retained although reference has no tabs. Reference heading, 2-card composition, metadata and reduced-motion rules are adopted. | CR4.2 |
-| D4 — Hybrid (Editorial) | 9 real local books retained instead of the reference’s 6 illustrative cards; stats row removed/restyled. Category filters adopted. `pageCount` added only if seed data can supply it; otherwise omission stays documented. | CR5.1 |
+| D4 — Hybrid (Editorial) | 9 real local books retained instead of the reference’s 6 illustrative cards; stats row removed. Category filters and 1/2/3-column grid adopted. `pageCount` added as `Int?`, but no verified seed values exist, so cards show publisher/year fallback; omission documented. | CR5.1 |
 | D5 — Hybrid (Contact) | Multi-select service chips retained (reference script is single-select); pure validation and Ktor submission scaffold preserved; reference fields/copy/channels/24h note adopted. | CR6.1 |
 | D6 — Keep Current (Mobile nav) | 6 bottom-bar destinations instead of the stale PRD 5-item draft; reference floating-pill styling adopted. | CR6.2 |
 | D7 — Hybrid (Bilingual) | ID/EN toggle remains About-only; reference is Indonesian-only. Site-wide localization and content ownership are future work. | CR5.3, future |
-| Deferred | Hero layered studio/voice-reel card; trusted-client logos use text/icon badges if logo assets are unavailable; remote CMS/admin, case-study modals. | CR4.1 / CR5.2 / future |
+| Deferred | Hero layered studio/voice-reel card (CR4.1); trusted-client row uses text/icon badges because no logo assets are available (implemented in CR5.2); remote CMS/admin and case-study modals. | CR4.1 / CR5.2 / future |
 
 **Non-goals:** no Android/iOS targets, no pixel-cloning of the reference HTML, no new runtime dependencies without justification, no committing endpoints/keys/contact secrets, no rewriting working audio/form behavior except where the reference explicitly replaces it.
 

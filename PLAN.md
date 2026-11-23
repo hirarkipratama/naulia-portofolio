@@ -16,14 +16,14 @@
 - `wasmJs` browser target with `binaries.executable()` and dev-server port 8081; single module `:composeApp`; Gradle Kotlin DSL + `gradle/libs.versions.toml`.
 - Theme: `LuminaTheme.kt`, `LuminaColors.kt` (11-color older palette: `primary #FF8E72`, `primaryVariant #F59E0B`, etc.), `LuminaTypography.kt` (Outfit-only generic `SansSerif`, 13 styles, no leading/tracking), `LuminaDimens.kt`, `PublisherBadgeColor.kt`, `Responsive.kt`, common `FontLoader.kt`; no Hanken Grotesk, elevation/shadow tokens or container/inverse/error color families yet.
 - Navigation/shell: `NavSection.all` with 6 IDs, `Navigator`, `SectionScrollCoordinator`, `ScrollBridge`, wasm `ScrollObserver`; `TopNavBar`, `BottomTabBar` (6 thumb targets), `FooterSection`; IntersectionObserver scroll-spy; `App.kt` composes all sections.
-- Six screens + footer: `HeroScreen` (headline/chips/2 CTAs/portrait scrim), `AudioReelScreen` (4 category filters, 7 tracks), `EditorialWorksScreen` (9 books, stats row, no filters), `McStageScreen` (4 metrics, 9 events, text credibility line), `AboutScreen` + `BioStrings` (philosophy, quote, 6 capability pills, About-only ID/EN toggle), `ContactScreen` (multi-select chips, 5 fields, WA + Email only; 24h appears in success copy, not as the reference's standalone note).
+- Six screens + footer: `HeroScreen` (headline/chips/2 CTAs/portrait scrim), `AudioReelScreen` (4 category filters, 7 tracks), `EditorialWorksScreen` (9 books, category filters, reference metadata/cards, no stats row), `McStageScreen` (4 metric cards, 2 wide event showcases, trusted-client text/icon row), `AboutScreen` + `BioStrings` (two-column philosophy + quote, 6 capability cards, About-only ID/EN toggle), `ContactScreen` (multi-select chips, 5 fields, WA + Email only; 24h appears in success copy, not as the reference's standalone note).
 - Data: `LocalContentRepository` with 7 `AudioTrack`, 9 `Book`, 9 `McEvent`, `PortfolioMetrics`; `ContentRepository` interface; `CmsDataSource` remote methods are `TODO("Phase 2 — Remote CMS")`; all models `val`-only, most `@Serializable`.
 - ViewModels: `AudioViewModel` (single-active-player, scrub/seek, end state, progress polling, category reset), `ContactViewModel` + pure `ContactValidation` + `SubmissionState`, `CmsViewModel` + `ContentState`; plain Kotlin `CoroutineScope(SupervisorJob())`, `StateFlow`, manual DI via `AppContainer`.
 - Platform interop: `AudioPlayerContract`/provider + wasm `HtmlAudioPlayer`, `ImageLoader` expect + wasm actual (fetch/Base64/ImageBitmap), `PlatformUtils` expect + wasm actual (open URL/WA/email, `prefersReducedMotion`), `FontLoader` actual, `GlobalStyleInjector` (focus ring + reduced-motion CSS override).
 - Contact integration scaffold: Ktor `HttpClient` with content negotiation, POST to placeholder `https://formspree.io/f/YOUR_FORM_ID`; no HTTP status check yet.
 - Web assets: `wasmJsMain/resources/index.html` (favicons, Outfit + Noto Color Emoji links), `audio/`, `images/`; duplicate `assets/audio`, `assets/images` tree and one unreferenced `.heif` per image tree.
 
-**Not implemented / gaps driving CR3–CR7:** full reference token system and component primitives; hero trust-badge/studio-card parity; reference audio/editorial/MC/About/contact composition; IG/LinkedIn channels; configurable endpoint/contact config with status handling; ID mapping exposure for reference anchors; reduced-motion gating for smooth/animated scroll; asset dedupe/WebP conversion. No app code or assets were changed in CR1 or CR2.
+**Not implemented / gaps driving CR3–CR7:** after CR3–CR5, remaining gaps are reference contact composition/channels/config, ID mapping exposure for reference anchors, reduced-motion gating for smooth/animated scroll, asset dedupe/WebP conversion, and final QA/a11y checks. Hero studio card and site-wide localization stay deferred. No app code or assets were changed in CR1 or CR2.
 
 ---
 
@@ -163,26 +163,35 @@ data class AudioTrack(                 // not @Serializable — add if crossing 
 )
 
 @Serializable
+enum class BookCategory(val label: String) { SAINS("Sains"), BUKU_CERITA("Buku Cerita"), ENSIKLOPEDIA("Ensiklopedia") }
+
+enum class BookFilter(val label: String, val category: BookCategory?) {
+    ALL("Semua", null), SAINS("Sains", BookCategory.SAINS), BUKU_CERITA("Buku Cerita", BookCategory.BUKU_CERITA), ENSIKLOPEDIA("Ensiklopedia", BookCategory.ENSIKLOPEDIA)
+}
+
+@Serializable
 data class Book(
     val id: String, val title: String,
     val publisher: Publisher, val ageRange: AgeRange,
-    val roles: List<EditorRole>,
+    val category: BookCategory, val roles: List<EditorRole>,
     val coverAsset: String, val year: Int,
-    val synopsis: String = "",          // currently unpopulated
-)                                      // CR5.1: optional pageCount only if seed data can supply it
+    val synopsis: String,
+    val pageCount: Int? = null,         // nullable; no verified seed values yet
+)
 
 @Serializable
 data class McEvent(
     val id: String, val eventName: String, val date: String,
-    val venue: String, val city: String, // city added vs old plan
+    val venue: String, val city: String,
     val estimatedAttendees: Int, val photoAsset: String, val tags: List<String>,
+    val role: String = "", val description: String = "",
 )
 
 @Serializable
-data class PortfolioMetrics(           // present; replaces inline metric literals
+data class PortfolioMetrics(           // single source via DEFAULT
     val totalEvents: Int, val officialPartners: String,
     val audiobooksProduced: Int, val clientRetentionPct: Int, val titlesEdited: Int,
-)
+) { companion object { val DEFAULT = PortfolioMetrics(50, "Gramedia", 10, 98, 15) } }
 
 @Serializable
 data class ContactForm(                // CR6.1 extends for reference fields
@@ -192,7 +201,7 @@ data class ContactForm(                // CR6.1 extends for reference fields
 )
 ```
 
-`ContentState.DEFAULT_METRICS` currently duplicates metric literals — single-source from `LocalContentRepository.getMetrics()` during CR5.2. All public properties remain `val` (R1.2); filtering/validation stay in pure functions (R6.2).
+Metrics are single-sourced from `PortfolioMetrics.DEFAULT` (CR5.2); `ContentState.DEFAULT_METRICS` was removed. Book filtering lives in the pure `List<Book>.filterByCategory(BookFilter)` function (CR5.1). All public properties remain `val` (R1.2).
 
 ---
 
@@ -264,14 +273,15 @@ Endpoint currently `https://formspree.io/f/YOUR_FORM_ID` in `AppContainer` (plac
 - [x] CR3.1 Theme (2026-11-23): full Curated Lumina color families mapped into `LuminaColorScheme` + Material3 (fixed tokens omitted where CMP 1.7.3 lacks them), Outfit/Hanken scale with leading/tracking and button style, spacing/gutter/margin/radius/elevation/size/motion tokens, combined font CSS injection, shell focus/theme colors updated.
 - [x] CR3.2 Primitives (2026-11-23): `LuminaPrimaryButton`, `LuminaSecondaryButton`, `LuminaIconButton`, `StatusPill`/`SectionEyebrow`/`PillTone`, `LuminaFilterChip`, `LuminaCard`, `LuminaTextField`; cards/chips/headers/inputs migrated, reduced-motion hover/lift gated; `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
 - [x] CR4 Hero/Audio (2026-11-23): hero uses reference copy with italic accent, dual CTA, three trust badges and portrait scrim/caption (studio card deferred with `TODO("CR4.1")`, documented in PRD §8); audio uses reference heading/eyebrow/subtitle, 2-column featured cards with category badge, duration, description, play/pause, scrubber/time labels and tag chips, filters retained per D3; `AudioTrack.description` added to model and seed data. `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
+- [x] CR5 Books/MC/About (2026-11-23): editorial filters + reference cards/grid for 9 books, MC metrics/events/trusted-client row, About two-column cards + quote with About-only ID/EN toggle. `pageCount` is nullable with no verified seed values; documented in PRD §8. `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
 
 ### In Progress
-- None. CR4 is complete; next prompt is CR5.1 (editorial works). CR5–CR7 items below stay unchecked until implemented and verified.
+- None. CR5 is complete; next prompt is CR6.1 (contact form). CR6–CR7 items below stay unchecked until implemented and verified.
 
 ### Change Request Backlog (execute in `PROMPTS.md` order; do not mark done before verification)
 - [x] **CR3 Theme** — CR3.1 rebuilt `LuminaColorScheme` + Material3 scheme with reference families, Hanken Grotesk body/label + Outfit display with leading/tracking, elevation/radius/spacing tokens, deduped font loading; CR3.2 added shared CTA/ghost/icon buttons, chips, cards, 52px inputs, eyebrow header primitives and migrated screens.
 - [x] **CR4 Hero/Audio** — CR4.1 hero copy, 3 trust badges, dual CTA, portrait scrim/caption, studio card deferred with `TODO("CR4.1")` + PRD note; CR4.2 reference audio heading/2-col featured layout with badge/duration/description/play/scrubber/tags, filters kept, playback semantics intact.
-- [ ] **CR5 Books/MC/About** — CR5.1 filters + reference metadata/grid for 9 books (optional `pageCount`, stats row restyled); CR5.2 centered MC header, 4 metric cards, 2 wide event showcases, trusted-client row; CR5.3 two-column About with 6 capability cards + accessible About-only EN toggle.
+- [x] **CR5 Books/MC/About** — CR5.1 category filters, reference metadata/cards and 1/2/3-column grid for all 9 books, stats row removed, nullable `pageCount` documented (no verified values, year fallback); CR5.2 centered header, 4 metric cards with supporting text, 2 wide event showcases with role/description, text/icon trusted-client row, metrics single-sourced; CR5.3 two-column About with quote block, 6 capability cards, reference-aligned copy and accessible About-only ID/EN toggle. `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
 - [ ] **CR6 Contact/Nav/Footer/Assets** — CR6.1 reference fields/24h note/4 channels/configurable endpoint/status handling; CR6.2 floating pill nav, 6-destination mobile bar, reference anchors + footer, keyboard/focus/scroll offset; CR6.3 canonical WebP assets, remove `.heif`, dedupe trees, no 404s.
 - [ ] **CR7 QA/Deploy** — compile/dev-run/distribution, responsive checks, audio/form/scroll-spy smoke tests, reduced motion + focus verification, record results in `CR-AUDIT.md`, final PRD/PLAN/changelog sync.
 - [ ] Future (deferred): configured Formspree/equivalent backend, remote CMS + admin UI, case-study modals, site-wide localization with owner-owned translations, hero studio card.
@@ -335,4 +345,4 @@ kotlin-multiplatform, kotlin-serialization, compose-multiplatform, compose-compi
 - [ ] Focus rings visible on nav, chips, buttons, inputs and audio controls (CSS override plus Compose semantics).
 - [ ] Keyboard: play/pause and seek operable; form fully navigable; anchor links reachable.
 - [ ] `prefers-reduced-motion`: equalizer, card lift, smooth scroll and `Navigator` animation all gated; CSS override is not sufficient by itself.
-- [ ] Responsive 1/2/3-column grids and 6-destination bottom bar verified at reference breakpoints (mobile <768px, tablet 768–1199px, desktop ≥1200px).
+- [ ] Responsive 1/2/3-column grids and 6-destination bottom bar verified at `LuminaDimens.Breakpoints` (mobile <480dp, tablet 480–1279dp, desktop ≥1280dp).
