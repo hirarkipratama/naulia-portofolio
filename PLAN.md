@@ -1,8 +1,29 @@
 # Naulia Zahra — Portfolio Platform: Comprehensive Development Plan
 
-> **Tech Stack:** Kotlin Multiplatform (KMP) · Compose for Web (Compose HTML / Compose Multiplatform WASM) · Kotlin/JS  
-> **Target Platform:** Web-only (no Android / iOS targets)  
-> **Design System:** Curated Lumina — Warm Cream × Coral `#ff8e72` × Outfit typeface
+> **Tech Stack:** Kotlin Multiplatform (KMP) · Compose Multiplatform (`wasmJs` browser target only) · Kotlin/JS interop<br>
+> **Target Platform:** Web-only — no Android, JVM or iOS targets (`settings.gradle.kts` includes only `:composeApp`)<br>
+> **Design System:** Curated Lumina per `reference/DESIGN.md` + `reference/code.html`; frontmatter palette canonical (see `PRD.md` §5)<br>
+> **Decision source:** `docs/change-request/CR-AUDIT.md` — binding decisions D1–D7. `PRD.md` is the requirement source; `RULES.md`/`SKILL.md` govern engineering.<br>
+> **Status rule:** nothing is marked complete unless it is verified in code or by the listed command (§11).
+
+---
+
+## Current State (as of 2026-11-23)
+
+> The CR2 prompt template cited 2026-05-23; this is the actual inspection/execution date used by CR1.1 and CR2.
+
+**Implemented (verified in `composeApp/src`):**
+- `wasmJs` browser target with `binaries.executable()` and dev-server port 8081; single module `:composeApp`; Gradle Kotlin DSL + `gradle/libs.versions.toml`.
+- Theme: `LuminaTheme.kt`, `LuminaColors.kt` (11-color older palette: `primary #FF8E72`, `primaryVariant #F59E0B`, etc.), `LuminaTypography.kt` (Outfit-only generic `SansSerif`, 13 styles, no leading/tracking), `LuminaDimens.kt`, `PublisherBadgeColor.kt`, `Responsive.kt`, common `FontLoader.kt`; no Hanken Grotesk, elevation/shadow tokens or container/inverse/error color families yet.
+- Navigation/shell: `NavSection.all` with 6 IDs, `Navigator`, `SectionScrollCoordinator`, `ScrollBridge`, wasm `ScrollObserver`; `TopNavBar`, `BottomTabBar` (6 thumb targets), `FooterSection`; IntersectionObserver scroll-spy; `App.kt` composes all sections.
+- Six screens + footer: `HeroScreen` (headline/chips/2 CTAs/portrait scrim), `AudioReelScreen` (4 category filters, 7 tracks), `EditorialWorksScreen` (9 books, stats row, no filters), `McStageScreen` (4 metrics, 9 events, text credibility line), `AboutScreen` + `BioStrings` (philosophy, quote, 6 capability pills, About-only ID/EN toggle), `ContactScreen` (multi-select chips, 5 fields, WA + Email only; 24h appears in success copy, not as the reference's standalone note).
+- Data: `LocalContentRepository` with 7 `AudioTrack`, 9 `Book`, 9 `McEvent`, `PortfolioMetrics`; `ContentRepository` interface; `CmsDataSource` remote methods are `TODO("Phase 2 — Remote CMS")`; all models `val`-only, most `@Serializable`.
+- ViewModels: `AudioViewModel` (single-active-player, scrub/seek, end state, progress polling, category reset), `ContactViewModel` + pure `ContactValidation` + `SubmissionState`, `CmsViewModel` + `ContentState`; plain Kotlin `CoroutineScope(SupervisorJob())`, `StateFlow`, manual DI via `AppContainer`.
+- Platform interop: `AudioPlayerContract`/provider + wasm `HtmlAudioPlayer`, `ImageLoader` expect + wasm actual (fetch/Base64/ImageBitmap), `PlatformUtils` expect + wasm actual (open URL/WA/email, `prefersReducedMotion`), `FontLoader` actual, `GlobalStyleInjector` (focus ring + reduced-motion CSS override).
+- Contact integration scaffold: Ktor `HttpClient` with content negotiation, POST to placeholder `https://formspree.io/f/YOUR_FORM_ID`; no HTTP status check yet.
+- Web assets: `wasmJsMain/resources/index.html` (favicons, Outfit + Noto Color Emoji links), `audio/`, `images/`; duplicate `assets/audio`, `assets/images` tree and one unreferenced `.heif` per image tree.
+
+**Not implemented / gaps driving CR3–CR7:** full reference token system and component primitives; hero trust-badge/studio-card parity; reference audio/editorial/MC/About/contact composition; IG/LinkedIn channels; configurable endpoint/contact config with status handling; ID mapping exposure for reference anchors; reduced-motion gating for smooth/animated scroll; asset dedupe/WebP conversion. No app code or assets were changed in CR1 or CR2.
 
 ---
 
@@ -11,362 +32,303 @@
 | Concern | Choice | Reason |
 |---|---|---|
 | Language | Kotlin | Single language across all layers |
-| UI Framework | **Compose Multiplatform for Web (WASM target)** | Declarative, fully Kotlin, Compose paradigm |
-| Shared Logic | **Kotlin Multiplatform (commonMain)** | Business logic, state management, models shared |
-| Web target | `wasmJs` (WASM) with `browser` target | Best performance & full Compose runtime |
-| CMS / Content | Local `data` module (Kotlin objects/serialized JSON) → Phase 2: headless CMS API | Simple, type-safe, no backend needed in Phase 1 |
-| Audio | HTML5 `<audio>` via `kotlinx-browser` interop | Native browser audio API, no extra lib |
-| Form Backend | Formspree / Resend webhook (REST) via `ktor-client-js` | Lightweight, no server required |
-| Styling | Compose theming system + CSS custom properties injected via `kotlinx-browser` | Full Compose theming, Outfit font via Google Fonts |
-| Build | Gradle (Kotlin DSL) + `wasmJsBrowserDistribution` | Standard KMP toolchain |
-| Deployment | GitHub Pages / Netlify / Vercel (static WASM bundle) | Zero-server, CDN-served |
+| UI Framework | Compose Multiplatform for Web (`wasmJs`) | Declarative, fully Kotlin, Compose paradigm |
+| Shared Logic | `commonMain` | Models, repository, ViewModels, UI, theme shared |
+| Web target | `wasmJs` browser | Full Compose runtime; only configured target |
+| CMS / Content | Local `LocalContentRepository` objects → remote CMS is Future | Zero backend, type-safe, fast deploy |
+| Audio | HTML5 `<audio>` via `kotlinx-browser` interop | Native browser playback/seek |
+| Form Backend | Ktor POST to configurable Formspree-style endpoint | Lightweight, no server; currently placeholder |
+| Styling | Compose theme + `LocalLuminaColors`/`LocalLuminaTypeScale` + injected global CSS | Follow RULES R3.7/R4.3; no per-screen magic values |
+| Build | Gradle Kotlin DSL + `wasmJsBrowserDistribution` | Standard KMP toolchain |
+| Deployment | Static bundle (Netlify / GitHub Pages / Vercel) | Zero-server CDN hosting |
 
 ---
 
-## 1. Project Structure
+## 1. Project Structure (actual)
 
 ```
 naulia-personal-portofolio/
-├── build.gradle.kts                    # Root build config
-├── settings.gradle.kts
-├── gradle/
-│   └── libs.versions.toml             # Version catalog
+├── build.gradle.kts, settings.gradle.kts, gradle.properties
+├── gradle/libs.versions.toml              # version catalog (§10)
+├── PRD.md, PLAN.md, RULES.md, SKILL.md
+├── docs/change-request/
+│   ├── PROMPTS.md                         # CR phase prompts
+│   └── CR-AUDIT.md                        # CR1 decisions, gaps, risks
+├── reference/
+│   ├── DESIGN.md                          # Curated Lumina tokens (canonical)
+│   └── code.html                          # target composition/copy
 │
-├── composeApp/                         # Main KMP module
-│   ├── build.gradle.kts
-│   └── src/
-│       ├── commonMain/kotlin/id/naulia/portfolio/
-│       │   ├── App.kt                  # Root @Composable entry point
-│       │   ├── navigation/
-│       │   │   ├── NavSection.kt       # Sealed class: Home, Audio, Books, MC, About, Contact
-│       │   │   └── Navigator.kt        # State-based scroll navigator
-│       │   ├── data/
-│       │   │   ├── model/
-│       │   │   │   ├── AudioTrack.kt   # id, title, category, durationSec, assetUrl, tags
-│       │   │   │   ├── Book.kt         # id, title, publisher, ageRange, role, coverAsset, year
-│       │   │   │   ├── McEvent.kt      # id, eventName, date, venue, attendees, photoAsset, tags
-│       │   │   │   └── ContactForm.kt  # name, contact, services (Set<Service>), scope, message
-│       │   │   ├── repository/
-│       │   │   │   ├── ContentRepository.kt    # Interface
-│       │   │   │   └── LocalContentRepository.kt # Hardcoded seed data (Phase 1 CMS)
-│       │   │   └── cms/
-│       │   │       └── CmsDataSource.kt         # Phase 2: REST/JSON remote
-│       │   ├── ui/
-│       │   │   ├── theme/
-│       │   │   │   ├── LuminaTheme.kt  # MaterialTheme wrapper + color tokens
-│       │   │   │   ├── LuminaColors.kt # Warm cream, coral, mint, lavender tokens
-│       │   │   │   └── LuminaTypography.kt  # Outfit font scales
-│       │   │   ├── components/         # Shared atomic components
-│       │   │   │   ├── SectionHeader.kt
-│       │   │   │   ├── CredentialChip.kt
-│       │   │   │   ├── ServicePill.kt
-│       │   │   │   └── AnimatedEqualizer.kt
-│       │   │   └── screens/            # One composable per section
-│       │   │       ├── HeroScreen.kt
-│       │   │       ├── AudioReelScreen.kt
-│       │   │       ├── EditorialWorksScreen.kt
-│       │   │       ├── McStageScreen.kt
-│       │   │       ├── AboutScreen.kt
-│       │   │       └── ContactScreen.kt
-│       │   └── viewmodel/
-│       │       ├── AudioViewModel.kt   # playback state, activeTrackId, progress
-│       │       ├── ContactViewModel.kt # form state, submission, validation
-│       │       └── CmsViewModel.kt     # content loading state (Phase 2)
-│       │
-│       └── wasmJsMain/kotlin/id/naulia/portfolio/
-│           ├── main.kt                 # wasmJs entry: renderComposable { App() }
-│           ├── audio/
-│           │   └── HtmlAudioPlayer.kt  # HTMLAudioElement interop (actual)
-│           ├── navigation/
-│           │   └── ScrollObserver.kt   # IntersectionObserver JS interop
-│           └── platform/
-│               └── PlatformUtils.kt    # window.open, WhatsApp deep link, etc.
-│
-├── cms-admin/                          # Optional: simple local CMS admin (Phase 2)
-│   └── src/wasmJsMain/kotlin/...      # Separate entry for /admin route
-│
-├── assets/
-│   ├── audio/                         # .mp3 / .ogg demo reels
-│   ├── images/                        # WebP book covers, event photos, portrait
-│   └── fonts/                         # Outfit variable font (self-hosted fallback)
-│
-├── PRD.md
-├── PLAN.md                            # ← this file
-└── PROMPTS.md                         # ← step-by-step prompts
+└── composeApp/                            # only Gradle module
+    ├── build.gradle.kts
+    └── src/
+        ├── commonMain/kotlin/id/naulia/portfolio/
+        │   ├── App.kt
+        │   ├── audio/
+        │   │   ├── AudioPlayerContract.kt
+        │   │   └── AudioPlayerProvider.kt  # expect
+        │   ├── data/
+        │   │   ├── cms/CmsDataSource.kt    # remote stub — TODO(Phase 2)
+        │   │   ├── model/
+        │   │   │   ├── AudioTrack.kt, AudioTrack+Extensions.kt, AudioCategory.kt
+        │   │   │   ├── Book.kt, AgeRange.kt, EditorRole.kt, Publisher.kt
+        │   │   │   ├── McEvent.kt, PortfolioMetrics.kt
+        │   │   │   ├── ContactForm.kt, ServiceType.kt
+        │   │   ├── repository/
+        │   │   │   ├── ContentRepository.kt
+        │   │   │   └── LocalContentRepository.kt  # 7 tracks / 9 books / 9 events
+        │   ├── di/AppContainer.kt
+        │   ├── image/ImageLoader.kt        # expect
+        │   ├── navigation/
+        │   │   ├── NavSection.kt           # 6 internal IDs
+        │   │   ├── Navigator.kt
+        │   │   ├── ScrollBridge.kt
+        │   │   └── SectionScrollCoordinator.kt
+        │   ├── platform/PlatformUtils.kt   # expect
+        │   ├── ui/
+        │   │   ├── components/
+        │   │   │   ├── AnimatedEqualizer.kt, AudioScrubber.kt, AudioTrackCard.kt
+        │   │   │   ├── BookCoverCard.kt, CredentialChip.kt, EventPhotoCard.kt
+        │   │   │   ├── MetricCard.kt, SectionHeader.kt, SelectableServicePill.kt
+        │   │   │   ├── TopNavBar.kt, BottomTabBar.kt
+        │   │   ├── icons/LuminaIcons.kt
+        │   │   ├── screens/
+        │   │   │   ├── HeroScreen.kt, AudioReelScreen.kt, EditorialWorksScreen.kt
+        │   │   │   ├── McStageScreen.kt, AboutScreen.kt, BioStrings.kt
+        │   │   │   ├── ContactScreen.kt, FooterSection.kt
+        │   │   └── theme/
+        │   │       ├── LuminaTheme.kt, LuminaColors.kt, LuminaTypography.kt
+        │   │       ├── LuminaDimens.kt, PublisherBadgeColor.kt, Responsive.kt
+        │   │       └── FontLoader.kt        # expect
+        │   └── viewmodel/
+        │       ├── AudioViewModel.kt, ContactViewModel.kt, CmsViewModel.kt
+        │       ├── ContactValidation.kt, ContentState.kt, SubmissionState.kt
+        │
+        └── wasmJsMain/
+            ├── kotlin/id/naulia/portfolio/
+            │   ├── main.kt                 # entry point
+            │   ├── GlobalStyleInjector.kt  # global CSS (R4.3)
+            │   ├── audio/{AudioPlayerProvider.kt,HtmlAudioPlayer.kt}
+            │   ├── image/ImageLoader.wasmJs.kt
+            │   ├── navigation/ScrollObserver.kt
+            │   ├── platform/PlatformUtils.kt
+            │   └── ui/theme/FontLoader.kt
+            └── resources/
+                ├── index.html              # web shell; font links + favicons
+                ├── favicon*.png/.ico/.svg, apple-touch-icon.png
+                ├── audio/*.mp3             # code fetches "audio/…"
+                ├── images/{audio,hero,projects/books,projects/events}/*.webp
+                ├── images/projects/events/*.heif   # unreferenced — remove/convert (§12)
+                └── assets/{audio,images}/…         # duplicate tree — dedupe (§12)
 ```
+
+**Legacy / Future directories (not part of the build):** repo-root `assets/`, `shared/`, `webApp/` are scaffold leftovers — `settings.gradle.kts` includes only `:composeApp` (CR6.3 confirms before deleting). `cms-admin/` + separate `/admin` entry are **Future**, not present in the tree. No test source sets exist yet; pure functions in `ContactValidation`/`AudioTrack+Extensions` are the first candidates.
 
 ---
 
 ## 2. Architecture Overview
 
-```mermaid
-flowchart TD
-    subgraph Browser["Browser (WASM Runtime)"]
-        A["main.kt\nrenderComposable"] --> B["App.kt\nRoot Composable"]
-        B --> NAV["Navigator\nStateFlow<NavSection>"]
-        B --> THEME["LuminaTheme\nMaterial3 Wrapper"]
+```
+Browser (WASM runtime)
+  main.kt → renderComposable → App.kt
+      ├─ LuminaTheme (LocalLuminaColors / LocalLuminaTypeScale / MaterialTheme)
+      ├─ Navigator + SectionScrollCoordinator + ScrollBridge ↔ ScrollObserver (JS)
+      └─ Screens: Hero | AudioReel | EditorialWorks | McStage | About | Contact | Footer
 
-        THEME --> SCREENS["Screen Composables"]
-        NAV --> SCREENS
+commonMain
+  ViewModels: AudioViewModel | ContactViewModel | CmsViewModel
+  Data: ContentRepository ← LocalContentRepository (+ CmsDataSource stub, Future)
+  Contracts (expect): AudioPlayerContract/provider, ImageLoader, PlatformUtils, FontLoader
 
-        SCREENS --> H["HeroScreen"]
-        SCREENS --> AU["AudioReelScreen"]
-        SCREENS --> ED["EditorialWorksScreen"]
-        SCREENS --> MC["McStageScreen"]
-        SCREENS --> AB["AboutScreen"]
-        SCREENS --> CO["ContactScreen"]
-    end
+wasmJsMain (JS interop only)
+  HtmlAudioPlayer | ImageLoader.wasmJs | ScrollObserver | PlatformUtils | FontLoader | GlobalStyleInjector
 
-    subgraph ViewModels["ViewModel Layer (commonMain)"]
-        AVM["AudioViewModel\nStateFlow<AudioUiState>"]
-        CVM["ContactViewModel\nStateFlow<FormState>"]
-        CMVM["CmsViewModel\nStateFlow<ContentState>"]
-    end
-
-    subgraph Data["Data Layer (commonMain)"]
-        REPO["ContentRepository\ninterface"]
-        LOCAL["LocalContentRepository\nSeed data objects"]
-        REMOTE["CmsDataSource\nktor-client-js (Phase 2)"]
-        REPO --> LOCAL
-        REPO -.->|"Phase 2"| REMOTE
-    end
-
-    subgraph Interop["JS Interop (wasmJsMain)"]
-        AUDIO["HtmlAudioPlayer\nHTMLAudioElement"]
-        SCROLL["ScrollObserver\nIntersectionObserver"]
-        PLATFORM["PlatformUtils\nwindow / location"]
-    end
-
-    AU --> AVM
-    CO --> CVM
-    H --> CMVM
-    CMVM --> REPO
-    AVM --> AUDIO
-    NAV --> SCROLL
+External
+  Formspree-style HTTP endpoint (configurable, currently placeholder) | WA/Email/IG/LinkedIn URLs
 ```
 
 ---
 
-## 3. Data Models (commonMain)
+## 3. Data Models (actual `commonMain` fields)
 
 ```kotlin
-// AudioTrack.kt
-data class AudioTrack(
+data class AudioTrack(                 // not @Serializable — add if crossing a boundary
     val id: String,
     val title: String,
-    val category: AudioCategory,  // ALL, STORY, SCIENCE, CHARACTER_VO
+    val category: AudioCategory,       // ALL, STORY, SCIENCE, CHARACTER_VO
     val durationSec: Int,
-    val assetUrl: String,         // "audio/track_01.mp3"
-    val tags: List<String>
+    val assetUrl: String,              // "audio/…"
+    val coverAsset: String = "",       // "images/audio/…"
+    val tags: List<String> = emptyList(),
 )
 
-// Book.kt
+@Serializable
 data class Book(
-    val id: String,
-    val title: String,
-    val publisher: Publisher,     // GRAMEDIA, BIP, MIZAN, ERLANGGA
-    val ageRange: AgeRange,       // AGE_3_6, AGE_4_8, AGE_7_12
-    val roles: List<EditorRole>,  // DEVELOPMENTAL_EDITOR, STEM_FACT_CHECKER, etc.
-    val coverAsset: String,       // "images/covers/book_01.webp"
-    val year: Int
-)
+    val id: String, val title: String,
+    val publisher: Publisher, val ageRange: AgeRange,
+    val roles: List<EditorRole>,
+    val coverAsset: String, val year: Int,
+    val synopsis: String = "",          // currently unpopulated
+)                                      // CR5.1: optional pageCount only if seed data can supply it
 
-// McEvent.kt
+@Serializable
 data class McEvent(
-    val id: String,
-    val eventName: String,
-    val date: String,             // "2024-03"
-    val venue: String,
-    val estimatedAttendees: Int,
-    val photoAsset: String,
-    val tags: List<String>
+    val id: String, val eventName: String, val date: String,
+    val venue: String, val city: String, // city added vs old plan
+    val estimatedAttendees: Int, val photoAsset: String, val tags: List<String>,
 )
 
-// ContactForm.kt
-data class ContactForm(
-    val name: String,
-    val contact: String,          // Email or WhatsApp
-    val services: Set<ServiceType>,
-    val scope: String,
-    val message: String
+@Serializable
+data class PortfolioMetrics(           // present; replaces inline metric literals
+    val totalEvents: Int, val officialPartners: String,
+    val audiobooksProduced: Int, val clientRetentionPct: Int, val titlesEdited: Int,
+)
+
+@Serializable
+data class ContactForm(                // CR6.1 extends for reference fields
+    val name: String = "", val contact: String = "",
+    val services: Set<ServiceType> = emptySet(),
+    val scope: String = "", val message: String = "",
 )
 ```
+
+`ContentState.DEFAULT_METRICS` currently duplicates metric literals — single-source from `LocalContentRepository.getMetrics()` during CR5.2. All public properties remain `val` (R1.2); filtering/validation stay in pure functions (R6.2).
 
 ---
 
 ## 4. State Management
 
-| ViewModel | State Class | Key Fields |
+| ViewModel | State (actual) | Key fields / behavior |
 |---|---|---|
-| `AudioViewModel` | `AudioUiState` | `activeTrackId`, `isPlaying`, `progressSec`, `durationSec`, `selectedCategory` |
-| `ContactViewModel` | `FormState` | `form: ContactForm`, `isLoading`, `isSuccess`, `errorMessage`, `validationErrors` |
-| `CmsViewModel` | `ContentState` | `tracks: List<AudioTrack>`, `books: List<Book>`, `events: List<McEvent>`, `isLoading` |
+| `AudioViewModel` | `AudioUiState` (`@Stable`) | `tracks`, `filteredTracks`, `activeTrackId`, `isPlaying`, `progressSec`, `durationSec`, `selectedCategory`, `isLoading`; 250 ms progress polling; single-active-player; `onCleared()` releases player |
+| `ContactViewModel` | `FormUiState` (`@Stable`) | `form`, `validation`, `submissionState: SubmissionState`, `selectedServices`; pure `validateContactForm`; POST with Idle/Loading/Success/Error |
+| `CmsViewModel` | `ContentState` (`@Stable`) | `tracks`, `books`, `events`, `metrics`, `isLoading`, `errorMessage`; loads from `ContentRepository` |
 
-All ViewModels use `kotlinx.coroutines` + `StateFlow`. No Android ViewModel dependency — plain Kotlin classes with `CoroutineScope`.
+All ViewModels are plain Kotlin classes with `SupervisorJob + Dispatchers.Main`, expose `StateFlow`, use `.update {}`, and are obtained in Compose via `remember { AppContainer.… }` (R1.6/R1.7/R2.5).
 
 ---
 
-## 5. Navigation Model
+## 5. Navigation Model (actual)
 
 ```kotlin
-sealed class NavSection(val id: String, val labelId: String) {
-    object Home     : NavSection("home",             "nav_home")
-    object Audio    : NavSection("featured-audiobook","nav_audio")
-    object Books    : NavSection("editorial-works",  "nav_books")
-    object Stage    : NavSection("mc-stage",         "nav_mc")
-    object About    : NavSection("about",            "nav_about")
-    object Contact  : NavSection("contact",          "nav_contact")
+sealed class NavSection(val sectionId: String, val labelBahasa: String,
+                        val labelEnglish: String, val imageVector: ImageVector) {
+    object Home    : NavSection("home",              "Beranda",   "Home",    …)
+    object Audio   : NavSection("featured-audiobook","Buku Suara","Audio",   …)
+    object Books   : NavSection("editorial-works",   "Buku",      "Books",   …)
+    object Stage   : NavSection("mc-stage",          "Acara",     "Events",  …)
+    object About   : NavSection("about",             "Profil",    "Profile", …)
+    object Contact : NavSection("contact",           "Kontak",    "Contact", …)
+    companion object { val all = listOf(Home, Audio, Books, Stage, About, Contact) }
 }
 ```
 
-Navigation is **scroll-based, not route-based** — no multipage routing needed. `IntersectionObserver` (JS interop) updates `Navigator.activeSection: StateFlow<NavSection>` as the user scrolls.
+Scroll-based, not route-based. `IntersectionObserver` (wasm) drives the active section; CR6.2 keeps the internal IDs stable while exposing reference anchors (`voice-audio-reel`, `editorial-portfolio`, `mc-live-stage`, `about-naulia`, `contact`) to DOM/footer links, with fixed-nav scroll offset and reduced-motion gating. Mobile bottom bar keeps all 6 destinations (D6).
 
 ---
 
-## 6. CMS Strategy (Simple Admin UI — Phase 2)
+## 6. CMS Strategy
 
-The "CMS" for Phase 1 is **Kotlin data objects** in `LocalContentRepository.kt`. This gives:
-- Zero backend
-- Type-safe content editing directly in IDE
-- Fast build & deploy
-
-**Phase 2 CMS Admin:**
-- Separate Compose for Web entry point at `/admin`
-- Password-protected (simple localStorage token)
-- Writes JSON to a backend (Supabase / GitHub API)
-- Main site reads JSON from public URL via `ktor-client-js`
+Phase 1 content is `LocalContentRepository` objects (no backend). `CmsDataSource` declares `fetchTracks/fetchBooks/fetchEvents` as `TODO("Phase 2 — Remote CMS")`. A separate admin entry/remote JSON flow is **Future** and must not be described as implemented.
 
 ---
 
-## 7. Audio Playback Architecture (wasmJsMain)
+## 7. Audio Playback Architecture
 
-```kotlin
-// HtmlAudioPlayer.kt — JS interop
-actual class AudioPlayer {
-    private var audioElement: HTMLAudioElement? = null
-
-    actual fun load(url: String) {
-        audioElement = document.createElement("audio") as HTMLAudioElement
-        audioElement!!.src = url
-    }
-    actual fun play()  { audioElement?.play() }
-    actual fun pause() { audioElement?.pause() }
-    actual fun seekTo(seconds: Double) { audioElement?.currentTime = seconds }
-    actual fun getCurrentTime(): Double = audioElement?.currentTime ?: 0.0
-    actual fun getDuration(): Double = audioElement?.duration ?: 0.0
-    actual fun setOnTimeUpdate(callback: (Double) -> Unit) {
-        audioElement?.ontimeupdate = { callback(audioElement!!.currentTime) }
-    }
-}
-```
-
-`AudioViewModel` holds a single `AudioPlayer` instance and enforces **single-active-player** constraint — playing a new track automatically pauses the current.
+`AudioPlayerContract` (commonMain `expect`) → `HtmlAudioPlayer` (wasmJs `actual`) wraps `HTMLAudioElement` (`load/play/pause/seekTo/getCurrentTime/getDuration/setOnTimeUpdate/setOnEnded/release`). `AudioViewModel` loads one track at a time (pausing the previous), falls back to `AudioTrack.durationSec` when the element duration is unavailable, and polls progress every 250 ms. CR4.2 preserves all of this while restyling to the reference and keeping filters as a documented deviation.
 
 ---
 
-## 8. Form Submission (Collaboration Request)
+## 8. Form Submission
 
 ```
 ContactViewModel.submit()
-    → validateForm()
-    → ktor-client POST to Formspree endpoint
-    → on success: FormState.isSuccess = true  (show confirmation UI)
-    → on failure: FormState.errorMessage = "..."
+  → validateContactForm()  (pure; inline field errors)
+  → Ktor HttpClient.post(configuredEndpoint) { contentType(JSON); setBody(form) }
+  → 2xx: SubmissionState.Success   / exception or non-2xx: SubmissionState.Error
 ```
 
-WhatsApp direct-link: `window.open("https://wa.me/62xxx?text=...")` via `PlatformUtils.kt`.
+Endpoint currently `https://formspree.io/f/YOUR_FORM_ID` in `AppContainer` (placeholder, uncommitted production value required). CR6.1 makes it configurable and adds HTTP status handling; CR6.1 also moves WA/Email/IG/LinkedIn handles to config and opens them via `PlatformUtils`. No secrets or real endpoint IDs in source or commits (R8.3).
 
 ---
 
-## 9. Development Phases
+## 9. Development Phases & CR Status
 
-### Phase 1 — Foundation & UI Shell *(Sprint 1–2)*
-- [ ] KMP project scaffold (Gradle, `wasmJs` target, Compose Multiplatform)
-- [ ] `LuminaTheme` color + typography tokens
-- [ ] `NavSection` sealed class + `Navigator` state
-- [ ] All 6 screen composables — static/hardcoded content
-- [ ] Sticky top nav + active section highlight
-- [ ] Smooth scroll via JS interop
-- [ ] `HeroScreen` — portrait, credential chips, CTA buttons
+### Completed (verified in code)
+- [x] KMP scaffold, single `wasmJs` target, `:composeApp` module, Gradle catalog.
+- [x] Initial Lumina theme (11 colors, Outfit scale, dimens/breakpoints), 6-section shell, top/bottom nav + footer, scroll-spy.
+- [x] All six screens with local seed content: 7 audio tracks with real playback/scrubber/equalizer, 9 books, 9 events + 4 metrics, About toggle, contact form scaffold.
+- [x] Local content repository, ViewModels with StateFlow, manual DI, wasm interop (audio/image/scroll/platform/fonts/global CSS).
+- [x] CR1 Audit: `docs/change-request/CR-AUDIT.md` with D1–D7 decisions, gap checklist, risks and acceptance criteria; app code untouched.
+- [x] CR2 Docs (2026-11-23): `PRD.md` rewritten with reference tokens, ID mapping, interaction specs, config/asset policy and deviations; this `PLAN.md` rewritten to the actual file tree, models, dependencies, status and CR backlog. Documentation-only — no runtime behavior changed.
 
-### Phase 2 — Interactive Features *(Sprint 3–4)*
-- [ ] `AudioReelScreen` — category filter tabs, track list
-- [ ] `HtmlAudioPlayer` JS interop + `AudioViewModel`
-- [ ] Animated equalizer bars (`AnimatedEqualizer.kt`)
-- [ ] Interactive scrubber with live timestamps
-- [ ] `EditorialWorksScreen` — book cover grid, age/role badges
-- [ ] `McStageScreen` — metrics grid, event photo gallery
-- [ ] `AboutScreen` — philosophy quote + capability pills
+### In Progress
+- None. CR1 and CR2 are complete; next prompt is CR3.1 (Curated Lumina theme tokens). CR3–CR7 items below stay unchecked until implemented and verified.
 
-### Phase 3 — Form & CMS *(Sprint 5)*
-- [ ] `ContactScreen` — multi-select service pills, form inputs
-- [ ] `ContactViewModel` + validation logic
-- [ ] Formspree/Resend integration via `ktor-client-js`
-- [ ] WhatsApp deeplink from `PlatformUtils`
-- [ ] `LocalContentRepository` with full seed content
-- [ ] `CmsViewModel` wired to all screens
-
-### Phase 4 — Polish & Deploy *(Sprint 6)*
-- [ ] `IntersectionObserver` scroll-spy → active nav highlight
-- [ ] `prefers-reduced-motion` support
-- [ ] Keyboard navigation & focus rings (a11y)
-- [ ] WebP/SVG asset optimization
-- [ ] `wasmJsBrowserDistribution` → Netlify / GitHub Pages deploy
-- [ ] Bilingual strings (Bahasa Indonesia primary, English toggle)
-
-### Phase 5 — CMS Admin UI *(Future)*
-- [ ] Separate `/admin` Compose entry
-- [ ] JSON CRUD for tracks, books, events
-- [ ] Remote data fetch in main site
+### Change Request Backlog (execute in `PROMPTS.md` order; do not mark done before verification)
+- [ ] **CR3 Theme** — CR3.1 rebuild `LuminaColorScheme` + Material3 scheme with full reference families, Hanken Grotesk body/label + Outfit display with leading/tracking, elevation/radius/spacing tokens, dedupe font loading; CR3.2 shared CTA/ghost/icon buttons, chips, cards, 52px inputs, eyebrow header primitives; screens consume primitives.
+- [ ] **CR4 Hero/Audio** — CR4.1 hero copy/status pill, 3 trust badges, dual CTA, portrait scrim/caption, studio card deferred with `TODO("CR4.1")` + PRD note; CR4.2 reference audio heading/2-col featured layout with badge/duration/description/play/scrubber/tags, filters kept, playback semantics intact.
+- [ ] **CR5 Books/MC/About** — CR5.1 filters + reference metadata/grid for 9 books (optional `pageCount`, stats row restyled); CR5.2 centered MC header, 4 metric cards, 2 wide event showcases, trusted-client row; CR5.3 two-column About with 6 capability cards + accessible About-only EN toggle.
+- [ ] **CR6 Contact/Nav/Footer/Assets** — CR6.1 reference fields/24h note/4 channels/configurable endpoint/status handling; CR6.2 floating pill nav, 6-destination mobile bar, reference anchors + footer, keyboard/focus/scroll offset; CR6.3 canonical WebP assets, remove `.heif`, dedupe trees, no 404s.
+- [ ] **CR7 QA/Deploy** — compile/dev-run/distribution, responsive checks, audio/form/scroll-spy smoke tests, reduced motion + focus verification, record results in `CR-AUDIT.md`, final PRD/PLAN/changelog sync.
+- [ ] Future (deferred): configured Formspree/equivalent backend, remote CMS + admin UI, case-study modals, site-wide localization with owner-owned translations, hero studio card.
 
 ---
 
-## 10. Key Dependencies (libs.versions.toml)
+## 10. Key Dependencies (`gradle/libs.versions.toml` — actual)
 
 ```toml
 [versions]
-kotlin                  = "2.1.0"
-compose-multiplatform   = "1.7.3"
-ktor                    = "3.0.3"
-kotlinx-coroutines      = "1.9.0"
-kotlinx-serialization   = "1.7.3"
+kotlin = "2.1.0"; compose-multiplatform = "1.7.3"; ktor = "3.0.3"
+kotlinx-coroutines = "1.9.0"; kotlinx-serialization = "1.7.3"
 
-[libraries]
-compose-runtime         = { module = "org.jetbrains.compose.runtime:runtime",     version.ref = "compose-multiplatform" }
-compose-foundation      = { module = "org.jetbrains.compose.foundation:foundation",version.ref = "compose-multiplatform" }
-compose-material3       = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-multiplatform" }
-ktor-client-core        = { module = "io.ktor:ktor-client-core",                   version.ref = "ktor" }
-ktor-client-js          = { module = "io.ktor:ktor-client-js",                     version.ref = "ktor" }
-ktor-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json",    version.ref = "ktor" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-serialization   = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+[libraries]  # aliases used by composeApp/build.gradle.kts
+compose-runtime, compose-foundation, compose-material3
+ktor-client-core, ktor-client-content-negotiation, ktor-serialization-json
+kotlinx-coroutines-core, kotlinx-serialization-json
+# wasmJsMain additionally: ktor-client-js
 
 [plugins]
-kotlin-multiplatform    = { id = "org.jetbrains.kotlin.multiplatform",    version.ref = "kotlin" }
-kotlin-serialization    = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-compose-multiplatform   = { id = "org.jetbrains.compose",                 version.ref = "compose-multiplatform" }
-compose-compiler        = { id = "org.jetbrains.kotlin.plugin.compose",   version.ref = "kotlin" }
+kotlin-multiplatform, kotlin-serialization, compose-multiplatform, compose-compiler
 ```
 
+`commonMain` declares Compose runtime/foundation/material3, coroutines, serialization and Ktor core/content-negotiation/json; `wasmJsMain` adds `ktor-client-js`. No other targets or heavyweight dependencies (R7.1).
+
 ---
 
-## 11. Deployment
+## 11. Build, Verification & Deployment
 
-| Step | Command / Action |
+**Explicit verification commands (run after each implementation prompt from `PROMPTS.md`):**
+```bash
+./gradlew :composeApp:compileKotlinWasmJs                  # required compile gate (CR3 onward)
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun          # manual smoke: layout, audio, form, no 404s
+./gradlew :composeApp:wasmJsBrowserDistribution            # production bundle
+```
+`SKILL.md` also references `compileProductionExecutableKotlinWasmJs` and `wasmJsTest`; no test source sets exist yet — add pure-function tests before relying on the latter.
+
+| Step | Action |
 |---|---|
-| Local dev server | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` |
+| Local dev | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` (port 8081 per `build.gradle.kts`) |
 | Production build | `./gradlew :composeApp:wasmJsBrowserDistribution` |
-| Output dir | `composeApp/build/dist/wasmJs/productionExecutable/` |
-| Deploy (Netlify) | Drag & drop output dir, or connect GitHub repo + set build command above |
-| Deploy (GitHub Pages) | GitHub Actions workflow: build → `gh-pages` branch push |
+| Output | `composeApp/build/dist/wasmJs/productionExecutable/` |
+| Deploy | Static host (Netlify / GitHub Pages / Vercel) — build then publish output dir; no secrets in client bundle |
 
 ---
 
-## 12. Accessibility Checklist
+## 12. Asset & Deployment Hygiene (CR6.3)
 
-- [ ] Contrast ratio ≥ 4.5:1 for all text (Lumina tokens pre-validated)
-- [ ] All interactive elements have `Modifier.semantics { contentDescription = "..." }`
-- [ ] `SemanticsProperties.Role` set on buttons, links, images
-- [ ] Audio player: keyboard-controllable (Space = play/pause, Arrow = seek)
-- [ ] `prefers-reduced-motion`: AnimatedEqualizer stops animation, transitions instant
-- [ ] Focus rings visible on all focusable composables
+1. **Canonical source:** `composeApp/src/wasmJsMain/resources/{audio,images}` — data/repo already fetches `audio/…` and `images/…`; the mirrored `resources/assets/{audio,images}` tree and legacy repo-root `assets/` must be removed or documented as a generation source (verify no references before deleting source assets outside `resources`).
+2. **Formats:** WebP for all web images (SVG for icons); convert `MC_Ulang_Tahun_Penerbit_BIP_34.heif` to `.webp` with the same basename or remove it from the web bundle — browsers cannot decode HEIF and it is unreferenced. No HEIF in the bundle unless converted.
+3. **Dedupe & budget:** keep one copy of each MP3/WebP; enforce R7.2–R7.3 limits (covers ≤200KB, event photos ≤400KB, portrait ≤150KB/640×760, audio ≤2MB); lazy-load audio until user interaction.
+4. **Paths:** relative only — current seed data uses `audio/*.mp3`, `images/audio/*.webp`, `images/hero/*.webp`, `images/projects/books/*.webp`, `images/projects/events/*.webp`; R5.4's `images/covers|events|portrait` layout is a normalization target for CR6.3, not current reality. Verify `index.html` font links and wasm fetch paths resolve with no console errors/404s.
+5. **Output check:** confirm `composeApp/build/dist/wasmJs/productionExecutable/` contains the expected `index.html`, favicons, `composeApp.js/.wasm`, `audio/` and `images/`; exclude `build/`, `.gradle/`, `local.properties`, endpoint IDs and keys from commits (R8.3).
+
+---
+
+## 13. Accessibility Checklist (CR7.1)
+
+- [ ] Contrast ≥4.5:1 for all text using the reference token pairs.
+- [ ] `contentDescription` on images/icon-only buttons; dynamic play/pause label; `Role`/`stateDescription` on chips and clickable surfaces (R3.9).
+- [ ] Focus rings visible on nav, chips, buttons, inputs and audio controls (CSS override plus Compose semantics).
+- [ ] Keyboard: play/pause and seek operable; form fully navigable; anchor links reachable.
+- [ ] `prefers-reduced-motion`: equalizer, card lift, smooth scroll and `Navigator` animation all gated; CSS override is not sufficient by itself.
+- [ ] Responsive 1/2/3-column grids and 6-destination bottom bar verified at reference breakpoints (mobile <768px, tablet 768–1199px, desktop ≥1200px).
