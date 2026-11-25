@@ -1,6 +1,10 @@
 package id.naulia.portfolio.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,12 +25,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +42,7 @@ import id.naulia.portfolio.data.model.ServiceType
 import id.naulia.portfolio.platform.openEmail
 import id.naulia.portfolio.platform.openUrl
 import id.naulia.portfolio.platform.openWhatsApp
+import id.naulia.portfolio.platform.prefersReducedMotion
 import id.naulia.portfolio.ui.components.LuminaPrimaryButton
 import id.naulia.portfolio.ui.components.LuminaTextField
 import id.naulia.portfolio.ui.components.PillTone
@@ -266,6 +274,7 @@ private fun InquiryForm(
     val colors = LocalLuminaColors.current
     val type = LocalLuminaTypeScale.current
     val validation = uiState.validation
+    val reducedMotion = remember { prefersReducedMotion() }
     val shape = RoundedCornerShape(LuminaDimens.cornerRadius.media)
 
     Surface(
@@ -355,7 +364,11 @@ private fun InquiryForm(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            AnimatedVisibility(visible = uiState.submissionState is SubmissionState.Success) {
+            AnimatedVisibility(
+                visible = uiState.submissionState is SubmissionState.Success,
+                enter = if (reducedMotion) EnterTransition.None else fadeIn(),
+                exit = if (reducedMotion) ExitTransition.None else fadeOut(),
+            ) {
                 SuccessMessage(onReset = contactViewModel::resetForm)
             }
 
@@ -367,7 +380,10 @@ private fun InquiryForm(
                     shape = RoundedCornerShape(LuminaDimens.cornerRadius.button),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = ContactStrings.ERROR_DESCRIPTION },
+                        .semantics {
+                            contentDescription = ContactStrings.ERROR_DESCRIPTION
+                            liveRegion = LiveRegionMode.Polite
+                        },
                 ) {
                     Text(
                         text = errorMessage,
@@ -414,7 +430,10 @@ private fun SuccessMessage(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .semantics { contentDescription = ContactStrings.SUCCESS_DESCRIPTION },
+            .semantics {
+                contentDescription = ContactStrings.SUCCESS_DESCRIPTION
+                liveRegion = LiveRegionMode.Polite
+            },
         shape = RoundedCornerShape(LuminaDimens.cornerRadius.media),
         color = colors.tertiaryContainer,
     ) {
@@ -453,6 +472,7 @@ private fun FormError(message: String) {
         text = message,
         style = LocalLuminaTypeScale.current.labelSm,
         color = LocalLuminaColors.current.error,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
     )
 }
 

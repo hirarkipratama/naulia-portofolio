@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -65,6 +66,11 @@ fun BottomTabBar(
                         .semantics {
                             role = Role.Button
                             contentDescription = section.navLabelBahasa
+                            stateDescription = if (isActive) {
+                                BottomTabBarStrings.ACTIVE_SECTION
+                            } else {
+                                BottomTabBarStrings.INACTIVE_SECTION
+                            }
                         }
                         .padding(
                             horizontal = LuminaDimens.spacing.xs,
@@ -88,4 +94,9 @@ fun BottomTabBar(
             }
         }
     }
+}
+
+private object BottomTabBarStrings {
+    const val ACTIVE_SECTION = "Bagian aktif"
+    const val INACTIVE_SECTION = "Bagian lain"
 }

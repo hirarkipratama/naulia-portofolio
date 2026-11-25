@@ -88,7 +88,14 @@ class AudioViewModel(
         player.setOnEnded {
             pollingJob?.cancel()
             pollingJob = null
-            _uiState.update { it.copy(isPlaying = false, progressSec = 0.0) }
+            _uiState.update { state ->
+                state.copy(
+                    activeTrackId = null,
+                    isPlaying = false,
+                    progressSec = 0.0,
+                    durationSec = 0.0,
+                )
+            }
         }
         player.play()
         startProgressPolling()

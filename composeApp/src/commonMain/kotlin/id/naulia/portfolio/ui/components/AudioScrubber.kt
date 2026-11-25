@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import id.naulia.portfolio.data.model.toTimeString
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
@@ -46,7 +47,13 @@ fun AudioScrubber(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(LuminaDimens.size.scrubberHeight)
-                .semantics { contentDescription = AudioScrubberStrings.SCRUBBER_DESCRIPTION },
+                .semantics {
+                    contentDescription = AudioScrubberStrings.SCRUBBER_DESCRIPTION
+                    stateDescription = AudioScrubberStrings.progressDescription(
+                        current = progressSec.toTimeString(),
+                        total = durationSec.toTimeString(),
+                    )
+                },
         )
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -69,4 +76,8 @@ private const val MAX_PROGRESS = 1f
 
 private object AudioScrubberStrings {
     const val SCRUBBER_DESCRIPTION = "Geser untuk mengatur posisi audio"
+    const val PROGRESS_SEPARATOR = "dari"
+
+    fun progressDescription(current: String, total: String): String =
+        "$current $PROGRESS_SEPARATOR $total"
 }

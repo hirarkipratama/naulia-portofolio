@@ -18,7 +18,7 @@ actual fun openEmail(email: String) {
 }
 
 actual fun openUrl(url: String) {
-    window.open(url, "_blank")
+    window.open(url, "_blank", "noopener,noreferrer")
 }
 
 actual fun prefersReducedMotion(): Boolean = matchesReducedMotionPreference()

@@ -1,5 +1,6 @@
 package id.naulia.portfolio.navigation
 
+import id.naulia.portfolio.platform.prefersReducedMotion
 import kotlin.JsFun
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -47,11 +48,18 @@ private external fun installSectionAnchors(
 @JsFun("(id) => { const element = document.getElementById(id); if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' }); }")
 private external fun scrollIntoViewSmooth(id: String)
 
+@JsFun("(id) => { const element = document.getElementById(id); if (element) element.scrollIntoView({ behavior: 'auto', block: 'start' }); }")
+private external fun scrollIntoViewInstant(id: String)
+
 @JsFun("(id) => { const hash = '#' + id; if (window.location.hash !== hash) history.replaceState(null, '', hash); }")
 private external fun replaceSectionHash(id: String)
 
 actual fun smoothScrollToSection(sectionId: String) {
-    scrollIntoViewSmooth(sectionId)
+    if (prefersReducedMotion()) {
+        scrollIntoViewInstant(sectionId)
+    } else {
+        scrollIntoViewSmooth(sectionId)
+    }
 }
 
 actual fun syncSectionHash(sectionId: String) {

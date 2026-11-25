@@ -5,7 +5,7 @@
 > - **Date:** 2026-11-23
 > - **Status:** Active product requirement source; aligned to `reference/*` and the binding decisions in `docs/change-request/CR-AUDIT.md` (D1–D7). Supersedes the pre-implementation PRD.
 > - **Visual reference:** `reference/DESIGN.md` + `reference/code.html` — source of truth for visual design, section composition, and component behavior.
-> - **Implementation reference:** `PLAN.md` (actual codebase state and CR backlog). Mandatory engineering rules: `RULES.md` R1–R8; patterns: `SKILL.md`.
+> - **Implementation reference:** `PLAN.md` (verified codebase state and completed CR status). Mandatory engineering rules: `RULES.md` R1–R8; patterns: `SKILL.md`.
 > - **Deviation policy:** working product behavior (audio playback, scroll-spy, form validation) is preserved unless the reference explicitly replaces it; every intentional deviation is listed in §8.
 
 ---
@@ -37,40 +37,40 @@
 
 ### 3. Core Information Architecture & Section Hierarchy
 
-Internal `NavSection` IDs remain stable; reference anchor IDs are exposed via the scroll bridge/nav labels per CR6.2.
+`NavSection.sectionId` values are the reference anchors themselves; there is no separate internal ID set. The same IDs drive Compose scroll targets, hidden DOM anchors, hash deep links, footer links and scroll-spy.
 
-| Internal Section ID | Name (ID / EN) | Reference anchor ID | Composition (source: `code.html`) |
+| Section ID (= DOM anchor) | Desktop nav label (ID) | Bottom bar / footer label (ID / EN) | Composition (source: `code.html`) |
 |---|---|---|---|
-| `#home` | Beranda / Home | hero (no anchor in reference) | Headline + role subheadline + body; dual CTA; trust badges (MC Resmi Gramedia, 15+ Judul Buku Diedit, Narator VO Ekspresif); portrait with gradient scrim and "PANGGUNG & STUDIO" caption. Reference status pill is an empty placeholder comment, so no pill is rendered; layered studio/voice-reel card deferred (CR4.1). |
-| `#featured-audiobook` | Buku Suara / Audio | `#voice-audio-reel` | Eyebrow "🎙️ REEL SUARA & BUKU SUARA"; title "Karya Pilihan Buku Suara & VO"; 2-column featured cards with category badge, duration, description, play button, scrubber/time labels and tag chip. Category tabs are a documented deviation. |
-| `#editorial-works` | Buku / Books | `#editorial-portfolio` | Eyebrow "📖 LITERATUR ANAK & SAINS"; title "Pilihan Karya Editorial & Buku"; 1/2/3-column responsive grid; category filter tabs (`Semua/Sains/Buku Cerita/Ensiklopedia`); card metadata = category, age, role, publisher, optional page count. All 9 real books retained (deviation). |
-| `#mc-stage` | Acara / Events | `#mc-live-stage` | Centered header "Menghangatkan Panggung dengan Antusiasme & Energi"; 4 metric cards (50+ Acara Langsung, Gramedia Mitra Resmi, 10+ Judul Buku Suara, 98% Retensi Klien); 2 wide event showcases (venue/city, audience badge, role/date, description, tags); trusted-client row (Gramedia, Kompas Edukasi, Kemendikbud Literacy, Mizan Kids). |
-| `#about` | Profil / Profile | `#about-naulia` | Two columns: philosophy narrative + quote left; 6 capability cards with icon/title/description right. About-only ID/EN toggle retained. |
-| `#contact` | Kontak / Contact | `#contact` | Service chips; "Nama & Nama Instansi / Penerbit"; "Email atau Nomor WhatsApp"; "Cakupan Proyek & Perkiraan Tanggal"; submit CTA; direct WA/Email/IG/LinkedIn channels; "Respon dijamin dalam 24 jam hari kerja." note. |
-| (footer) | Navigasi & Hak Cipta / Footer | footer | Brand statement, navigation anchors, contact/social links, location tag and copyright. |
+| `#home` | — (wordmark; no Home nav item) | Beranda / Home | Headline + role subheadline + body; dual CTA; trust badges (MC Resmi Gramedia, 15+ Judul Buku Diedit, Narator VO Ekspresif); portrait with gradient scrim and "PANGGUNG & STUDIO" caption. Reference status pill is an empty placeholder comment, so no pill is rendered; layered studio/voice-reel card deferred (CR4.1). |
+| `#voice-audio-reel` | Buku Suara & VO | Audio / Audio | Eyebrow "🎙️ REEL SUARA & BUKU SUARA"; title "Karya Pilihan Buku Suara & VO"; 2-column featured cards with category badge, duration, description, play button, scrubber/time labels and tag chip. Category tabs are a documented deviation. |
+| `#editorial-portfolio` | Karya Editorial | Karya / Books | Eyebrow "📖 LITERATUR ANAK & SAINS"; title "Pilihan Karya Editorial & Buku"; 1/2/3-column responsive grid; category filter tabs (`Semua/Sains/Buku Cerita/Ensiklopedia`); card metadata = category, age, role, publisher, optional page count. All 9 real books retained (deviation). |
+| `#mc-live-stage` | MC & Panggung | Acara / Events | Centered header "Menghangatkan Panggung dengan Antusiasme & Energi"; 4 metric cards (50+ Acara Langsung, Gramedia Mitra Resmi, 10+ Judul Buku Suara, 98% Retensi Klien); 2 wide event showcases (venue/city, audience badge, role/date, description, tags); trusted-client row (Gramedia, Kompas Edukasi, Kemendikbud Literacy, Mizan Kids). |
+| `#about-naulia` | Tentang | Profil / Profile | Two columns: philosophy narrative + quote left; 6 capability cards with icon/title/description right. About-only ID/EN toggle retained. |
+| `#contact` | Kontak | Kontak / Contact | Service chips; "Nama & Nama Instansi / Penerbit"; "Email atau Nomor WhatsApp"; "Cakupan Proyek & Perkiraan Tanggal"; submit CTA; direct WA/Email/IG/LinkedIn channels; "Respon dijamin dalam 24 jam hari kerja." note. |
+| (footer) | — | Navigasi & Hak Cipta / Footer | Brand statement, navigation anchors, contact/social links, location tag and copyright. |
 
-**ID mapping rule:** the six internal IDs above are canonical for Compose/JS interop. Reference IDs in column 3 are the public anchor contract to expose in DOM/footer links; CR6.2 must keep both in sync so scroll-spy, deep links and the footer agree.
+**ID contract:** the six IDs above are canonical everywhere. `ScrollObserver` injects hidden DOM anchors for them and syncs `window.location.hash` via `history.replaceState`; `Navigator` scrolls with fixed-nav offset. No dual-ID mapping exists (updated in CR7.2).
 
 **Acceptance criteria (IA)**
-- [ ] All six sections and footer render in one scrollable page with stable internal IDs and correct reference anchor labels/links.
+- [x] All six sections and footer render in one scrollable page using the canonical reference anchor IDs/labels above (verified CR7.2).
 - [ ] Hero contains the three trust badges and both CTAs; primary CTA targets contact, secondary targets audio/books.
 - [ ] MC section contains 4 metrics, 2 featured event cards and the trusted-client row.
 
 ---
 
 ### 4. Interactive Specifications & UX Behaviors
-- **Anchor navigation / scroll-spy:** clicking a nav item scrolls smoothly to the target with fixed-nav offset compensation; `IntersectionObserver` updates the active nav state. Smooth scrolling and any animated navigator must be gated on `prefers-reduced-motion`.
+- **Anchor navigation / scroll-spy:** clicking a nav item scrolls to the target with fixed-nav offset compensation via `SectionScrollCoordinator`; active state comes from a Compose `snapshotFlow` of scroll position (`Navigator.onScrollPositionChanged`), while hidden DOM anchors and `history.replaceState` keep hash deep links working. Smooth scrolling, the 20-step navigator animation and CSS `scroll-behavior` are all gated on `prefers-reduced-motion`.
 - **Audio (preserved working behavior):** single-active-player (playing a track pauses the previous one); play/pause with dynamic `contentDescription`; real duration/progress from the HTML audio element; scrubber updates progress and seeks; elapsed/duration labels; equalizer animates only while playing and stops under reduced motion; category tabs reset playback on switch.
 - **Books:** category filter tabs derive from the immutable book list, never mutate seed data; switching filters updates the grid immediately; default filter is `Semua`; card hover elevation/lift is non-essential and disabled under reduced motion.
 - **Contact chips:** four service chips (`Editor Buku`, `MC Acara / Moderator`, `Voice Over Karakter`, `Kolaborasi Lengkap`); multi-select with selected/unselected styling, `role`/`stateDescription` semantics, and at least one required for valid submission.
-- **Contact form:** pure validation (name non-blank; email or `08…`/`+62…` WhatsApp; ≥1 service; scope ≥10 chars) with inline field errors; submission states Idle → Loading → Success/Error; success copy "Pesan Terkirim! Terima Kasih ✨" or owner-approved equivalent; endpoint and contact handles come from config, not screen literals.
+- **Contact form:** pure validation (name non-blank; email or `08…`/`+62…` WhatsApp; ≥1 service; scope ≥10 chars) with inline field errors; submission states Idle → Loading → Success/Error; success copy "Pesan Terkirim! Terima Kasih."; endpoint and handles come from `ContactConfig` (runtime override `__NAULIA_CONTACT_CONFIG__`), not screen literals; validation and submission outcomes are announced via polite live regions.
 - **Keyboard & focus:** visible focus rings on nav, chips, buttons, inputs and audio controls; play/pause and seek are keyboard operable; all clickable non-button surfaces carry `Role`/`contentDescription`/`stateDescription` per R3.9.
-- **Mobile ergonomics:** sticky bottom bar with exactly **6** thumb-friendly destinations — `Beranda`, `Buku Suara`, `Buku`, `Acara`, `Profil`, `Kontak` (from `NavSection.all`); no section is removed to satisfy the older 5-destination draft. Book grid uses 1 column on mobile, 2 on tablet and 3 on desktop; metric grid uses 2×2 on mobile and 4 columns on desktop.
+- **Mobile ergonomics:** floating bottom bar with exactly **6** thumb-friendly destinations — `Beranda`, `Audio`, `Karya`, `Acara`, `Profil`, `Kontak` (labels from `NavSection.all`), while desktop shows five longer nav labels plus an invite CTA. No section is removed to satisfy the older 5-destination draft. Book grid uses 1/2/3 columns on mobile/tablet/desktop; metric grid uses 2×2 on mobile and 4 columns on desktop.
 
-**Acceptance criteria (interaction)**
-- [ ] Audio: one active player; scrub/seek, end state, filter reset, equalizer + reduced motion, keyboard control all verified in browser.
-- [ ] Form: invalid input is rejected by pure validation; Loading/Success/Error render; external links open via `PlatformUtils`.
-- [ ] Active nav matches the visible section after anchor/label changes; focus rings visible; reduced motion disables non-essential animation.
+**Acceptance criteria (interaction — code-verified in CR7.1; browser smoke remains manual)**
+- [x] Audio: one active player; scrub/seek, end state (clears `activeTrackId`), filter reset, equalizer + reduced motion. Keyboard control requires manual browser confirmation.
+- [x] Form: invalid input is rejected by pure validation; Loading/Success/Error render with live-region announcements; external links open via `PlatformUtils` with `noopener,noreferrer`.
+- [x] Active nav matches the visible section via scroll snapshot flow; focus rings visible on all interactive surfaces; reduced motion disables non-essential animation.
 
 ---
 
@@ -113,19 +113,19 @@ Reference frontmatter (`reference/DESIGN.md:3-135`) is canonical; the prose "Pal
 
 **Components:** pill primary CTA (Hover scale ~1.02 + coral shadow), secondary/ghost button, 44px circular icon button, status/case-study/spotlight pills, white 24px-radius cards with nested 16px media radius and hover lift, 52px text inputs with 8px radius and coral focus ring. No hardcoded hex, font size or spacing in screens/components (R3.7).
 
-**Acceptance criteria (design)**
-- [ ] `LuminaColorScheme` + Material3 scheme expose every family above; no ad-hoc old-palette hex in touched theme files.
-- [ ] Both fonts load exactly once in the WASM shell; display vs body/label styles follow the table.
-- [ ] Shared primitives are used by screens; focus/contrast/reduced-motion states implemented.
+**Acceptance criteria (design — verified CR7.1)**
+- [x] `LuminaColorScheme` + Material3 scheme expose every family above; no ad-hoc old-palette hex in touched theme files.
+- [x] Both fonts load exactly once in the WASM shell (static link + deduping injector); display vs body/label styles follow the table.
+- [x] Shared primitives are used by screens; focus/contrast/reduced-motion states implemented (CR7.1 closed the remaining gaps).
 
 ---
 
 ### 6. Technical Stack & Integration Requirements
 - **Architecture:** KMP `commonMain` (models, repository, ViewModels, UI, theme, `expect` contracts) + `wasmJsMain` (JS interop, `actual` implementations, web resources). Web-only, single `wasmJs` browser target; manual DI via `AppContainer`.
 - **Dependencies (as built):** Kotlin 2.1.0, Compose Multiplatform 1.7.3, Ktor 3.0.3 (`core`, `content-negotiation`, `js`, `serialization-json`), coroutines 1.9.0, serialization 1.7.3. Do not add runtime dependencies without R7.1 justification.
-- **Form backend — PLACEHOLDER:** current endpoint is `https://formspree.io/f/YOUR_FORM_ID` in `AppContainer` and must be treated as unconfigured. Production requires a configured endpoint supplied via build/env config (never committed, R8.3), HTTP status handling (2xx vs error) and testable Loading/Success/Error states.
-- **Direct channels — PLACEHOLDER:** WA/Email/IG/LinkedIn links must be opened through `PlatformUtils` (`expect`/`actual`). Current handles in screen code are sample values; move to one clearly marked, owner-approved config object before production. No secrets in source or commits.
-- **Asset policy:** one canonical web asset source at `composeApp/src/wasmJsMain/resources/{audio,images}`; relative paths `audio/…` and `images/…` per R5.4. Images WebP (SVG for icons); **no HEIF in the web bundle unless converted to WebP**; size limits per R7.2–R7.3. Duplicate `assets/` trees are to be removed/documented (CR6.3). Fonts: Outfit + Hanken Grotesk loaded once via `index.html` with fallback families.
+- **Form backend — PLACEHOLDER:** `ContactConfig` defaults to `https://formspree.io/f/YOUR_FORM_ID`; `ContactViewModel` treats it as unconfigured, POSTs with `expect/actual` Ktor client, accepts only 2xx and exposes Idle/Loading/Success/Error. Owner must inject a real endpoint via `__NAULIA_CONTACT_CONFIG__` (never commit it, R8.3).
+- **Direct channels — PLACEHOLDER:** WA/Email/IG/LinkedIn links open through `PlatformUtils` (`expect`/`actual`, `noopener,noreferrer`). Handles live in `ContactConfig`; the shipped defaults are samples and IG/LinkedIn URLs are empty (`#` fallback) until owner-supplied. No secrets in source or commits.
+- **Asset policy:** one canonical web asset source at `composeApp/src/wasmJsMain/resources/{audio,images}`; relative paths `audio/…` and `images/…` per R5.4. Images WebP (SVG for icons); **no HEIF in the web bundle unless converted to WebP**. Duplicate `resources/assets` trees were removed in CR6.3 (repo-root source assets retained); CR7.1 verified 33/33 referenced assets in the distribution and zero HEIF. Fonts: Outfit + Hanken Grotesk loaded once via `index.html` with fallback families.
 - **Accessibility:** ≥4.5:1 text contrast, visible focus, keyboard operability and `prefers-reduced-motion` support across all interactive surfaces (R3.9, R4).
 - **Content ownership:** Indonesian copy is primary and owned by the talents/owner; English text exists only for About toggles. Any future site-wide translation requires owner-reviewed content before rollout.
 
@@ -138,8 +138,9 @@ Reference frontmatter (`reference/DESIGN.md:3-135`) is canonical; the prose "Pal
 4. **Completed (CR3, 2026-11-23):** full Curated Lumina token system plus shared button/card/chip/input primitives.
 5. **Completed (CR4, 2026-11-23):** hero reference copy/badges/portrait caption and audio reference cards with playback behavior preserved.
 6. **Completed (CR5, 2026-11-23):** editorial filters + reference metadata/grid for all 9 books; MC centered header, 4 metric cards, 2 wide event showcases and text/icon trusted-client row; About two-column layout with 6 capability cards, quote block and accessible About-only ID/EN toggle. `pageCount` is a nullable model field with no verified seed values, so cards fall back to publisher/year metadata. `compileKotlinWasmJs` and `wasmJsBrowserDistribution` pass.
-7. **Change Request backlog (CR6–CR7):** CR6 contact/nav/footer/assets; CR7 QA, a11y and final doc sync. Detailed tasks and status live in `PLAN.md` §9.
-8. **Future / deferred:** configured Formspree or equivalent integration; CMS admin UI + remote content; case-study detail overlays; site-wide ID/EN localization with owner-owned translations; hero layered studio card (deferred in CR4.1).
+7. **Completed (CR6, 2026-11-23):** reference contact fields/channels/config guard, floating pill nav + 6-destination bottom bar + reference anchors/footer, canonical WebP assets with duplicate/HEIF cleanup.
+8. **Completed (CR7, 2026-11-23):** compile + distribution pass, 33/33 referenced assets resolve, remaining a11y/motion/contrast/semantics/font-dedup defects fixed; results recorded in `CR-AUDIT.md` §7–§8; PRD/PLAN/SKILL/changelog synced.
+9. **Future / deferred:** owner-supplied Formspree endpoint + verified contact handles; CMS admin UI + remote content; case-study detail overlays; site-wide ID/EN localization with owner-owned translations; hero layered studio card (CR4.1); manual browser screenshot/keyboard/screen-reader smoke.
 
 ---
 
@@ -153,12 +154,12 @@ Binding decisions from `docs/change-request/CR-AUDIT.md`; rationale is recorded 
 | D3 — Hybrid (Audio) | Category filter tabs retained although reference has no tabs. Reference heading, 2-card composition, metadata and reduced-motion rules are adopted. | CR4.2 |
 | D4 — Hybrid (Editorial) | 9 real local books retained instead of the reference’s 6 illustrative cards; stats row removed. Category filters and 1/2/3-column grid adopted. `pageCount` added as `Int?`, but no verified seed values exist, so cards show publisher/year fallback; omission documented. | CR5.1 |
 | D5 — Hybrid (Contact) | Multi-select service chips retained (reference script is single-select); pure validation and Ktor submission scaffold preserved; reference fields/copy/channels/24h note adopted. | CR6.1 |
-| D6 — Keep Current (Mobile nav) | 6 bottom-bar destinations instead of the stale PRD 5-item draft; reference floating-pill styling adopted. | CR6.2 |
+| D6 — Keep Current (Mobile nav) | 6 bottom-bar destinations (`Beranda/Audio/Karya/Acara/Profil/Kontak`) instead of the stale PRD 5-item draft; reference floating-pill styling adopted. Section IDs are the reference anchors, not legacy internal IDs. | CR6.2, verified CR7.2 |
 | D7 — Hybrid (Bilingual) | ID/EN toggle remains About-only; reference is Indonesian-only. Site-wide localization and content ownership are future work. | CR5.3, future |
-| Deferred | Hero layered studio/voice-reel card (CR4.1); trusted-client row uses text/icon badges because no logo assets are available (implemented in CR5.2); remote CMS/admin and case-study modals. | CR4.1 / CR5.2 / future |
+| Deferred | Hero layered studio/voice-reel card (CR4.1); trusted-client row uses text/icon badges because no logo assets are available (CR5.2); remote CMS/admin and case-study modals; owner-supplied endpoint/handles and manual browser smoke (CR7.1). | CR4.1 / CR5.2 / CR7 / future |
 
 **Non-goals:** no Android/iOS targets, no pixel-cloning of the reference HTML, no new runtime dependencies without justification, no committing endpoints/keys/contact secrets, no rewriting working audio/form behavior except where the reference explicitly replaces it.
 
-**CR2 acceptance criteria (docs — verified 2026-11-23)**
-- [x] This PRD contains a Document Status block, reference-backed §5 tokens, §3 ID mapping table, §4 interaction specs, 6-destination mobile nav, bilingual scope, §6 config/asset policy, and this deviations section.
-- [x] No statement in this PRD claims an implemented feature that is absent from the code; CR3–CR7 work is labeled as backlog, not complete.
+**Final doc acceptance (CR7.2, verified 2026-11-23)**
+- [x] This PRD contains a Document Status block, reference-backed §5 tokens, §3 canonical ID table, §4 interaction specs, 6-destination mobile nav, bilingual scope, §6 config/asset policy and §8 deviations.
+- [x] No statement claims a feature absent from the code; CR1–CR7 are marked complete and deferred items are explicitly listed in §7/§8. QA evidence lives in `docs/change-request/CR-AUDIT.md` §7.

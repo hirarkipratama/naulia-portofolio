@@ -10,6 +10,7 @@ html { scroll-behavior: smooth; font-family: 'Hanken Grotesk', 'Outfit', sans-se
 html, body { overflow: hidden; }
 :focus-visible { outline: 2px solid #9D422C; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
 ::-webkit-scrollbar { display: none; width: 0; height: 0; }

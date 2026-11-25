@@ -1,8 +1,8 @@
 # CR-AUDIT.md — Change-Request Audit & Source-of-Truth Decisions
 
-> **Phase:** CR1.1 (Audit & Source-of-Truth Decisions)  
-> **Date:** 2026-11-23  
-> **Status:** Audit complete. No app code changed in this prompt.  
+> **Phase:** CR1–CR7 complete; final QA and documentation sync recorded in §7–§8.  
+> **Date:** 2026-11-23 (CR1.1 audit; CR7.1/CR7.2 final pass)  
+> **Status:** Final. CR1.1 created this audit without app-code changes; CR3–CR6 changed app code and CR7.1 added the a11y/QA fixes listed in §7.  
 > **Governing rule:** For visual design, section composition, and component behavior, `reference/DESIGN.md` + `reference/code.html` win. Working product behavior (audio playback, scroll-spy, form validation) is preserved unless the reference explicitly replaces it, and every deviation is documented in PRD/PLAN/this audit (`docs/change-request/PROMPTS.md:21-30`).
 
 ---
@@ -13,14 +13,15 @@
 |---|---|---|---|
 | Reference Design Spec | `reference/DESIGN.md` | Curated Lumina tokens, typography, layout, elevation, shapes, components | Frontmatter tokens (`:3-135`) treated as canonical; prose palette architecture (`:146-164`) treated as descriptive |
 | Reference HTML | `reference/code.html` | Target section structure, copy, hierarchy, interactions | Indonesian copy; single-page anchor nav; no build tooling |
-| Product requirements | `PRD.md` | IA, interaction specs, mobile ergonomics, milestones | Current version predates implementation (e.g. §6 describes vanilla HTML, §7 milestones stale) |
-| Execution plan | `PLAN.md` | Architecture, structure, models, build/deploy | Current version is scaffold-style with unchecked phases and planned-only files |
+| Product requirements | `PRD.md` | IA, interaction specs, mobile ergonomics, milestones | Final CR7.2 version: canonical section IDs, reference tokens, config/asset policy and completed/deferred milestones |
+| Execution plan | `PLAN.md` | Architecture, structure, models, build/deploy | Final CR7.2 version: actual tree/models, verified build results, completed CR status and resolved asset hygiene |
 | Mandatory rules | `RULES.md` | Kotlin/KMP/Compose constraints (R1-R8) | Applies to all later CR implementation prompts |
-| Execution patterns | `SKILL.md` | Component recipes, anti-patterns, build commands | Contains a second, older Lumina color table (`:373-387`) that must be reconciled in CR2 |
+| Execution patterns | `SKILL.md` | Component recipes, anti-patterns, build commands | Final CR7.2 version: reference token table, hidden-anchor scroll pattern, focus/semantics checklist |
 | Change-request prompts | `docs/change-request/PROMPTS.md` | CR phase sequence and acceptance criteria | Source of this prompt; quick order at `:353-371` |
+| Changelog | `docs/change-request/CHANGELOG.md` | User-visible CR3–CR7 changes | Added in CR7.2; owner follow-ups recorded under Unreleased |
 | Current implementation — shared | `composeApp/src/commonMain/kotlin/id/naulia/portfolio/**` | App, data, viewmodels, navigation, UI, theme, expect declarations | 6 sections, 7 tracks, 9 books, 9 events, `PortfolioMetrics` |
 | Current implementation — platform | `composeApp/src/wasmJsMain/kotlin/id/naulia/portfolio/**` | `main.kt`, `HtmlAudioPlayer`, `ScrollObserver`, `PlatformUtils`, `ImageLoader`, `FontLoader`, `GlobalStyleInjector` | Wasm-only JS interop; single `wasmJs` target |
-| Current implementation — web assets | `composeApp/src/wasmJsMain/resources/**` | `index.html`, favicons, `audio/`, `images/` | Also contains duplicate `assets/` tree and one `.heif` file |
+| Current implementation — web assets | `composeApp/src/wasmJsMain/resources/**` | `index.html`, favicons, `audio/`, `images/` | CR6.3 removed duplicate `assets/` tree and HEIF files from the web bundle |
 | Build config | `gradle/libs.versions.toml`, `build.gradle.kts`, `composeApp/build.gradle.kts`, `settings.gradle.kts` | Versions, targets, tasks | Kotlin 2.1.0, Compose 1.7.3, Ktor 3.0.3, coroutines 1.9.0, serialization 1.7.3 |
 
 **Verified current state (facts used below):**
@@ -76,8 +77,8 @@
 | CR-13 | Nav / footer / IDs | Reference anchors `voice-audio-reel`, `editorial-portfolio`, `mc-live-stage`, `about-naulia`, `contact`; floating pill nav and richer footer (`code.html:533`) | 6 internal IDs; rectangular top nav + hamburger; 6-destination bottom bar; 3-column footer (`NavSection.kt:6-21`, `TopNavBar.kt`, `BottomTabBar.kt`, `FooterSection.kt`) | Keep Current IDs + mapping table; Adopt Reference styling | `navigation/NavSection.kt`, `navigation/Navigator.kt`, `navigation/SectionScrollCoordinator.kt`, `wasmJsMain/navigation/ScrollObserver.kt`, `ui/components/TopNavBar.kt`, `ui/components/BottomTabBar.kt`, `ui/screens/FooterSection.kt` | §3 ID mapping table, §4 mobile 6 destinations | §5 nav model, §9 a11y | Implemented CR6.2 — reference anchor IDs/labels, floating pill desktop nav, floating 6-destination bottom bar, 5/3/4 footer, hidden DOM anchors + hash sync, fixed-nav scroll offset; compile pass |
 | CR-14 | Bilingual scope | Reference copy is Indonesian-only; PRD asks for ID/EN support | About-only local toggle (`AboutScreen.kt:46-66`) | Hybrid (D7) | `ui/screens/AboutScreen.kt`, `ui/screens/BioStrings.kt` | §3/§4 scope and content ownership | §9, §12 localization follow-up | Implemented CR5.3 (About-only toggle retained, all About copy translated); site-wide localization + content ownership remain deferred future work |
 | CR-15 | Asset hygiene | Single canonical WebP asset source; no HEIF in web bundle | 3 duplicate asset trees + unreferenced `.heif` in each (`wasmJsMain/resources/{,assets/}...`) | Adopt Reference | `wasmJsMain/resources/**`, `data/repository/LocalContentRepository.kt`, `.gitignore` | §6 asset format policy | §1, §11 asset/deploy hygiene | Implemented CR6.3 — `resources/{audio,images}` canonical; duplicate `resources/assets`, `.DS_Store`, and web-bundle HEIF removed; HEIF converted to `MC_Ulang_Tahun_Penerbit_BIP_34.webp` (source retained); 33/33 referenced assets resolve, dev smoke 200s, distribution pass |
-| CR-16 | Wasm a11y & motion | Visible focus, keyboard control, reduced motion for non-essential animation (`DESIGN.md`, `RULES.md` R3.9/R4, `PROMPTS.md:326-333`) | CSS focus/reduced-motion override exists, but smooth scroll and 20-step navigator animation are unconditional; custom clickable surfaces need roles/state descriptions (`GlobalStyleInjector.kt:9-14`, `Navigator.kt:28-34`, `ScrollObserver.kt:16-17`) | Adopt Reference | `ui/components/*`, `ui/screens/*`, `wasmJsMain/kotlin/.../GlobalStyleInjector.kt`, `navigation/Navigator.kt` | §4 keyboard/focus/reduced-motion specs | §12 a11y checklist | Partially addressed CR6.2 — Compose focus rings on nav/chips/buttons/channels/footer, reduced-motion scroll shortcut in `Navigator`; full keyboard/audio/a11y sweep remains CR7.1 |
-| CR-17 | Docs alignment | PRD/PLAN must describe actual code + CR decisions | PRD §6 still specifies vanilla HTML; PLAN phases unchecked; SKILL.md §7 color table conflicts with reference | Adopt Reference decisions | `PRD.md`, `PLAN.md`, `SKILL.md` §7, this file | Whole-document refresh | Whole-document refresh | Open → CR2.1, CR2.2, CR7.2 |
+| CR-16 | Wasm a11y & motion | Visible focus, keyboard control, reduced motion for non-essential animation (`DESIGN.md`, `RULES.md` R3.9/R4, `PROMPTS.md:326-333`) | CSS focus/reduced-motion override exists, but smooth scroll and 20-step navigator animation are unconditional; custom clickable surfaces need roles/state descriptions (`GlobalStyleInjector.kt:9-14`, `Navigator.kt:28-34`, `ScrollObserver.kt:16-17`) | Adopt Reference | `ui/components/*`, `ui/screens/*`, `wasmJsMain/kotlin/.../GlobalStyleInjector.kt`, `navigation/Navigator.kt` | §4 keyboard/focus/reduced-motion specs | §12 a11y checklist | Implemented CR6.2 + CR7.1 — focus rings on nav/filter chips/language toggle/buttons/channels/footer, `Role`/`stateDescription` on nav and chips, live regions for contact status, time-based scrubber semantics, active-nav contrast fixed, and smooth-scroll/color/layout/CSS animation paths gated on `prefersReducedMotion`; browser keyboard smoke remains manual (§7) |
+| CR-17 | Docs alignment | PRD/PLAN must describe actual code + CR decisions | PRD §6 still specifies vanilla HTML; PLAN phases unchecked; SKILL.md §7 color table conflicts with reference | Adopt Reference decisions | `PRD.md`, `PLAN.md`, `SKILL.md` §7, this file | Whole-document refresh | Whole-document refresh | Completed CR2.1/CR2.2 and CR7.2 — `PRD.md`, `PLAN.md`, `SKILL.md` and this audit synced; changelog added (§8) |
 
 ---
 
@@ -97,31 +98,33 @@
 
 ---
 
-## 5. Acceptance Criteria
+## 5. Acceptance Criteria (final status, CR7.2)
 
 **Visual parity targets**
 
-- [ ] `LuminaColorScheme` exposes every reference token family (primary/on-primary/primary-container, secondary*, tertiary*, surface*/on-surface*, outline*, inverse*, error*) with no ad-hoc hex in screens/components; Material3 `lightColorScheme` mirrors them (`CR-01`, `CR-03`).
-- [ ] Outfit is used for display/headline styles and Hanken Grotesk for body/label styles with reference weights, sizes, line-heights and letter-spacing; both load exactly once in the WASM shell (`CR-02`).
-- [ ] Section composition matches `code.html`: hero badges + dual CTA + portrait caption (`CR-05`), audio featured cards (`CR-06`), editorial cards with category metadata/filters (`CR-07`), MC metrics + 2 wide event cards + trusted-client row (`CR-08`, `CR-09`), About two-column cards + quote (`CR-10`), reference contact fields/channels/copy (`CR-11`, `CR-12`).
-- [ ] Responsive 1/2/3-column grids and mobile/desktop nav render without overflow at the reference breakpoints; desktop top nav is a floating pill and bottom nav has the 6 documented destinations (`CR-13`).
-- [ ] Every intentional deviation from the reference (audio filters, 9 books, multi-select service chips, About-only bilingual toggle, 6-destination nav) appears in PRD, PLAN and this audit.
+- [x] `LuminaColorScheme` exposes every reference token family with no ad-hoc hex in screens/components; Material3 `lightColorScheme` mirrors them (`CR-01`, `CR-03`).
+- [x] Outfit display/headline + Hanken Grotesk body/label with reference leading/tracking; the combined Google stylesheet is linked once in `index.html` and the runtime injector now dedupes against it (`CR-02`, CR7.1).
+- [x] Section composition matches `code.html`: hero badges + dual CTA + portrait caption (`CR-05`), audio featured cards (`CR-06`), editorial cards + filters (`CR-07`), MC metrics + 2 event showcases + trusted-client row (`CR-08`, `CR-09`), About cards + quote (`CR-10`), reference contact fields/channels (`CR-11`, `CR-12`). Studio card remains a documented deferral.
+- [x] Responsive 1/2/3-column grids; desktop floating pill nav and 6-destination bottom bar with `Beranda/Audio/Karya/Acara/Profil/Kontak` (`CR-13`). Visual rendering at breakpoints was implemented in CR3–CR6; final browser screenshot review is a manual owner check (§8).
+- [x] All intentional deviations (audio filters, 9 books, multi-select chips, About-only bilingual toggle, 6-destination nav) appear in PRD §8, PLAN and this audit.
 
 **No regressions**
 
-- [ ] Audio: single-active-player, play/pause, real progress and scrub/seek, end state, category filter reset, equalizer with reduced motion, and keyboard play/pause/seek all still work (`CR-06`).
-- [ ] Form: pure validation rules (name, email/WA, at least one service, scope ≥10 chars) still reject invalid input; Loading/Success/Error states render; success uses approved copy; valid submissions reach a configurable endpoint with HTTP status handling (`CR-11`, `CR-12`).
-- [ ] Scroll-spy, anchor offsets for the fixed nav, keyboard focus rings, and `prefers-reduced-motion` behavior remain intact after ID/style changes (`CR-13`, `CR-16`).
-- [ ] `./gradlew :composeApp:compileKotlinWasmJs` passes after each implementation prompt; `wasmJsBrowserDevelopmentRun` loads images/audio with no console errors or 404s; `wasmJsBrowserDistribution` succeeds.
+- [x] Audio: single-active-player, play/pause, progress/scrub/seek, end state, category reset, reduced-motion equalizer verified by code review; CR7.1 fixed the end-state mismatch (`activeTrackId` now cleared). Browser keyboard smoke remains manual (`PROMPTS.md:326-333`).
+- [x] Form: pure validation rules, Idle/Loading/Success/Error, configurable endpoint + 2xx status check, live-region announcements verified in code; real endpoint/handles are owner-supplied placeholders (§8).
+- [x] Scroll-spy (Compose `snapshotFlow` + `SectionScrollCoordinator`, no `IntersectionObserver`), fixed-nav offsets, focus rings and reduced-motion gating verified in code; CR7.1 fixed remaining smooth-scroll/CSS/compose animation paths.
+- [x] `./gradlew :composeApp:compileKotlinWasmJs` and `./gradlew :composeApp:wasmJsBrowserDistribution` pass (2026-11-23). `wasmJsBrowserDevelopmentRun` is a manual browser smoke; static check confirms 33/33 referenced assets present in the distribution with zero HEIF files.
+- [x] Active-nav contrast fixed from 2.24:1 to ≥4.5:1 (`onPrimaryContainer` on `primaryContainer`); canonical token pairs were computed at ≥4.5:1.
 
 **Docs updated**
 
-- [ ] `PRD.md` has a Document Status block, reference-backed design system, section ID mapping table, interaction specs, 6-destination mobile nav, bilingual scope, config/asset policy, and Non-goals/Deviations section.
-- [ ] `PLAN.md` has verified Current State, actual file tree/models, completed vs in-progress vs CR backlog, asset/deployment hygiene, and the three verification commands.
-- [ ] `docs/change-request/CR-AUDIT.md` Status column records the outcome of CR2-CR7, with known limitations and follow-ups.
-- [ ] No document claims a feature that is absent from the code.
+- [x] `PRD.md` has Document Status, reference-backed design system, canonical section-ID table, interaction specs, 6-destination nav, bilingual scope, config/asset policy and deviations section.
+- [x] `PLAN.md` has verified Current State, actual tree/models, completed CR status, asset/deployment hygiene and verification commands/results.
+- [x] `SKILL.md` has the final design-system table, hidden-anchor scroll pattern and completed accessibility checklist; `docs/change-request/CHANGELOG.md` was added.
+- [x] This audit's Status column records CR2–CR7 outcomes with known limitations and follow-ups (§7–§8).
+- [x] No document claims a feature absent from the code; stale claims about dual IDs, `IntersectionObserver`, old palette and duplicate assets were removed in CR7.2.
 
-**CR1.1 exit condition:** this file exists, contains all five required sections, and no app code was modified.
+**CR1.1 exit condition:** this file was created with all five required sections and no app-code changes. CR7.2 closes the change request.
 
 ---
 
@@ -131,4 +134,35 @@
 - Current implementation inspected: `composeApp/src/commonMain`, `composeApp/src/wasmJsMain`, web resources, build config.
 - App code, asset files and build config: **unchanged**.
 - Build verification: **not applicable** for this documentation-only prompt (first compile gate applies to CR3.1).
-- Next prompt: `CR2.1 — Update PRD.md to Match Reference + Decisions`.
+- Final state: CR2.1/CR2.2 docs, CR3 theme/primitives, CR4 hero/audio, CR5 books/MC/About, CR6 contact/nav/assets and CR7 QA/doc sync are all complete (§7–§8).
+
+---
+
+## 7. CR7.1 Verification Record (2026-11-23)
+
+| Check | Method | Result |
+|---|---|---|
+| Compile gate | `./gradlew :composeApp:compileKotlinWasmJs` | **PASS** (after fixes and before final doc pass) |
+| Production bundle | `./gradlew :composeApp:wasmJsBrowserDistribution` | **PASS**; webpack emits non-blocking size warnings (`composeApp.js` 535 KiB, Skiko `.wasm` 3.5–7.9 MiB) |
+| Asset resolution | Scripted check of all 33 referenced `audio/`/`images/` paths against `build/dist/wasmJs/productionExecutable` | **PASS** — 0 missing, 0 `.heif` in bundle |
+| Font loading | Static `index.html` + runtime injector review | **PASS** — one combined stylesheet link; injector dedupes on `data-naulia-font` and `family=Hanken+Grotesk` |
+| Reduced motion | Code review of all animation/scroll paths | **PASS after fixes** — CSS `scroll-behavior`, fallback `scrollIntoView`, `Navigator`, card/button/chip/pill color+scale, `animateContentSize`, success visibility and equalizer all gated |
+| Focus visibility | Review of every clickable surface | **PASS after fixes** — added focus rings to `LuminaFilterChip` and `AboutScreen.LanguageToggle`; nav, buttons, channels, footer and inputs already had rings/focus layers |
+| Semantics | Review of nav, chips, audio and contact status | **PASS after fixes** — nav active `stateDescription`, chip `RadioButton` role + label, scrubber time `stateDescription`, contact `LiveRegionMode.Polite` |
+| Contrast | WCAG computation of token pairs | **PASS after fix** — active top-nav item changed from white-on-`primaryContainer` (2.24:1) to `onPrimaryContainer` (4.55:1); all canonical pairs ≥4.5:1 |
+| Audio | `AudioViewModel`/`HtmlAudioPlayer` code review | **PASS with manual caveat** — single active player, seek, filter reset, end state (now clears `activeTrackId`); interactive play/pause/seek needs a real browser |
+| Contact | `ContactViewModel`/`ContactValidation` code review | **PASS** — pure validation, 2xx status guard, Idle/Loading/Success/Error; endpoint still placeholder (§8) |
+| Dev server smoke | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` | **MANUAL** — browser rendering, audio playback, keyboard/screen-reader and console/404 check must be done by the owner; static asset check above is a proxy |
+
+**CR7.1 fixes applied (all compile-verified):** `LuminaFilterChip.kt` (focus ring, radio semantics, motion gate), `AboutScreen.kt` (focus ring), `TopNavBar.kt` (contrast + active state), `BottomTabBar.kt` (active state), `AudioScrubber.kt` (time semantics), `SelectableServicePill.kt`/`LuminaButtons.kt` (snap spec under reduced motion), `AudioTrackCard.kt` (content-size gate), `ContactScreen.kt` (live regions + visibility gate), `AudioViewModel.kt` (end state), `ScrollObserver.kt`/`GlobalStyleInjector.kt` (reduced-motion scroll), `FontLoader.kt` (font dedup), `PlatformUtils.kt` (`noopener,noreferrer`).
+
+---
+
+## 8. Known Limitations & Follow-ups
+
+1. **Form backend and channels are placeholders.** `ContactConfig` defaults to `https://formspree.io/f/YOUR_FORM_ID` and sample handles; `__NAULIA_CONTACT_CONFIG__` is not defined in `index.html`. Owner must inject a verified config before production. IG/LinkedIn default URLs are empty and render `#` until configured (`ContactScreen.kt:225,484`).
+2. **Manual browser QA outstanding.** Full responsive screenshot review, keyboard tab order, play/pause/seek interaction, screen-reader announcement and console/404 inspection require a real browser run (`wasmJsBrowserDevelopmentRun`).
+3. **Deferred from earlier decisions:** hero layered studio/voice-reel card; site-wide localization; remote CMS/admin; case-study detail overlays; trusted-client logo images (text/icon badges used instead); `Book.pageCount` values (nullable, no verified seed data).
+4. **Audio robustness (optional follow-up):** `AudioPlayerContract` has no `onerror`/`onwaiting`, `AudioUiState.isLoading` is unused, a rejected `play()` promise leaves optimistic `isPlaying = true`, and polling has no slider-drag guard. None regress the verified happy path.
+5. **Bundle size (optional follow-up):** webpack warns about `composeApp.js` and Skiko `.wasm` sizes; revisit R7 budgets only with a measurement-driven task.
+6. **Preference changes:** `prefersReducedMotion()` is snapshotted via `remember` in composables; changing the OS setting mid-session requires reload.

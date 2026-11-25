@@ -99,7 +99,7 @@ fun AudioTrackCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(),
+                .then(if (reducedMotion) Modifier else Modifier.animateContentSize()),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

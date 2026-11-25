@@ -3,6 +3,8 @@ package id.naulia.portfolio.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,6 +60,7 @@ fun LuminaPrimaryButton(
             isHovered -> colors.primaryContainer
             else -> colors.primary
         },
+        animationSpec = if (reducedMotion) snap() else spring(),
     )
     val contentColor = when {
         !enabled -> colors.onSurface.copy(alpha = DISABLED_CONTENT_ALPHA)
@@ -143,9 +146,11 @@ fun LuminaSecondaryButton(
     val shape = RoundedCornerShape(LuminaDimens.cornerRadius.pill)
     val containerColor by animateColorAsState(
         targetValue = if (isHovered && enabled) colors.surfaceContainerLow else colors.surfaceContainerLowest,
+        animationSpec = if (reducedMotion) snap() else spring(),
     )
     val borderColor by animateColorAsState(
         targetValue = if (isHovered && enabled) colors.primary else colors.outlineVariant,
+        animationSpec = if (reducedMotion) snap() else spring(),
     )
     val contentColor = if (enabled) colors.onSurface else colors.onSurface.copy(alpha = DISABLED_CONTENT_ALPHA)
     val scale by animateFloatAsState(
@@ -203,6 +208,7 @@ fun LuminaIconButton(
     contentColor: Color? = null,
 ) {
     val colors = LocalLuminaColors.current
+    val reducedMotion = remember { prefersReducedMotion() }
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val background by animateColorAsState(
@@ -211,6 +217,7 @@ fun LuminaIconButton(
         } else {
             colors.surfaceContainerLow
         },
+        animationSpec = if (reducedMotion) snap() else spring(),
     )
     val tint = contentColor ?: colors.onSurface
 

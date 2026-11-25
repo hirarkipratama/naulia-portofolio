@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
@@ -145,7 +146,11 @@ fun TopNavBar(
                                     LuminaDimens.cornerRadius.pill,
                                 ),
                                 color = if (isActive) colors.primaryContainer else Color.Transparent,
-                                contentColor = if (isActive) colors.onPrimary else colors.onSurfaceVariant,
+                                contentColor = if (isActive) {
+                                    colors.onPrimaryContainer
+                                } else {
+                                    colors.onSurfaceVariant
+                                },
                                 shadowElevation = if (isActive) {
                                     LuminaDimens.elevation.level1
                                 } else {
@@ -160,6 +165,11 @@ fun TopNavBar(
                                     .semantics {
                                         role = Role.Button
                                         contentDescription = section.navLabelBahasa
+                                        stateDescription = if (isActive) {
+                                            TopNavStrings.ACTIVE_SECTION
+                                        } else {
+                                            TopNavStrings.INACTIVE_SECTION
+                                        }
                                     },
                             ) {
                                 Text(
@@ -190,6 +200,8 @@ object TopNavStrings {
     const val STUDIO_BADGE = "Studio"
     const val OPEN_MENU = "Buka menu navigasi"
     const val INVITE_CTA = "Undang Sekarang"
+    const val ACTIVE_SECTION = "Bagian aktif"
+    const val INACTIVE_SECTION = "Bagian lain"
 }
 
 private const val TWO = 2

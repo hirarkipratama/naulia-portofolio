@@ -27,8 +27,8 @@ description: >
 | **Target Platform** | Web-only (browser, WASM runtime) |
 | **UI Framework** | Compose Multiplatform (`wasmJs` target) |
 | **Shared Logic** | Kotlin Multiplatform (`commonMain`) |
-| **Design System** | Curated Lumina — Warm Cream × Coral `#ff8e72` × Outfit |
-| **Language** | Bahasa Indonesia (primary), English (toggle) |
+| **Design System** | Curated Lumina per `reference/DESIGN.md` + `PRD.md` §5 — Outfit display/headline + Hanken Grotesk body/label, coral `#9D422C` / `#FF8E72` system |
+| **Language** | Bahasa Indonesia (primary); About-only ID/EN toggle (site-wide localization deferred) |
 | **Root Package** | `id.naulia.portfolio` |
 | **Module** | `:composeApp` |
 | **Entry Point** | `wasmJsMain/kotlin/.../main.kt` → `ComposeViewport` |
@@ -197,22 +197,21 @@ fun CredentialChip(label: String) {
 ### 4.6 JS Interop (wasmJsMain only)
 
 ```kotlin
-// wasmJsMain/navigation/ScrollObserver.kt
+// wasmJsMain/navigation/ScrollObserver.kt — hidden anchors + hash, not IntersectionObserver
 actual fun setupScrollObserver(navigator: Navigator) {
-    val options = js("({ threshold: 0.4 })")
-    val observer = IntersectionObserver({ entries, _ ->
-        entries.forEach { entry ->
-            if (entry.isIntersecting) {
-                navigator.updateActiveSectionFromScroll(entry.target.id)
-            }
-        }
-    }, options)
-
-    NavSection.all.forEach { section ->
-        document.getElementById(section.sectionId)?.let { observer.observe(it) }
+    val idsJson = NavSection.all.joinToString(prefix = "[", postfix = "]") { "\"${it.sectionId}\"" }
+    val initial = installSectionAnchors(idsJson) { id ->
+        NavSection.fromSectionId(id)?.let(navigator::navigateTo)
     }
+    NavSection.fromSectionId(initial)?.let(navigator::navigateTo)
+}
+
+actual fun smoothScrollToSection(sectionId: String) {
+    if (prefersReducedMotion()) scrollIntoViewInstant(sectionId) else scrollIntoViewSmooth(sectionId)
 }
 ```
+
+Active section is driven in `commonMain` by `snapshotFlow { scrollPosition }` → `Navigator.onScrollPositionChanged`; `ScrollObserver` only installs hidden anchors, syncs the hash via `history.replaceState`, and scrolls with reduced-motion gating.
 
 ---
 
@@ -358,31 +357,37 @@ fun SelectableServicePill(
 
 ## 6. Section ID → Composable Mapping
 
-| PRD Section ID | NavSection | Screen Composable |
+| Canonical section ID (= DOM anchor) | NavSection | Screen Composable |
 |---|---|---|
 | `#home` | `NavSection.Home` | `HeroScreen.kt` |
-| `#featured-audiobook` | `NavSection.Audio` | `AudioReelScreen.kt` |
-| `#editorial-works` | `NavSection.Books` | `EditorialWorksScreen.kt` |
-| `#mc-stage` | `NavSection.Stage` | `McStageScreen.kt` |
-| `#about` | `NavSection.About` | `AboutScreen.kt` |
+| `#voice-audio-reel` | `NavSection.Audio` | `AudioReelScreen.kt` |
+| `#editorial-portfolio` | `NavSection.Books` | `EditorialWorksScreen.kt` |
+| `#mc-live-stage` | `NavSection.Stage` | `McStageScreen.kt` |
+| `#about-naulia` | `NavSection.About` | `AboutScreen.kt` |
 | `#contact` | `NavSection.Contact` | `ContactScreen.kt` |
 | — | — | `FooterSection.kt` |
+
+These IDs are used everywhere (Compose scroll targets, hidden DOM anchors, hash deep links, footer links, scroll-spy); there is no separate internal ID set.
 
 ---
 
 ## 7. Lumina Color Token Reference
 
+> Canonical source: `reference/DESIGN.md` frontmatter and `PRD.md` §5. Do not reintroduce the old 11-token palette (`#F59E0B`, `#6EAB9E`, `#A78BCA`).
+
 | Token | Hex | Usage |
 |---|---|---|
-| `primary` (Coral) | `#FF8E72` | CTAs, active states, borders, badges |
-| `primaryVariant` (Yellow) | `#F59E0B` | Secondary CTA highlights |
-| `secondary` (Mint) | `#6EAB9E` | STEM/Science category tags |
-| `tertiary` (Lavender) | `#A78BCA` | Erlangga publisher badge |
-| `background` | `#FFF8F3` | Page background (Warm Cream) |
-| `surface` | `#F9F2ED` | Card backgrounds (Soft Sand) |
-| `onBackground` | `#2D1F14` | Primary body text |
-| `onSurface` | `#4A3728` | Secondary text |
-| `outline` | `#E8DDD6` | Borders, dividers |
+| `primary` / `onPrimary` | `#9D422C` / `#FFFFFF` | Deep coral CTAs, text on primary |
+| `primaryContainer` / `onPrimaryContainer` | `#FF8E72` / `#762612` | Active indicators, chip/container text (CR7.1 contrast fix) |
+| `inversePrimary` | `#FFB4A2` | Inverse theme accents |
+| `secondary` / `secondaryContainer` | `#735C00` / `#FFE087` | Warm yellow support tags |
+| `tertiary` / `tertiaryContainer` | `#006C52` / `#55C09C` | Mint/STEM accents |
+| `background` / `onBackground` | `#FFF8F3` / `#1D1B18` | Warm cream canvas, body text |
+| `surface*` (lowest → highest) | `#FFFFFF` → `#E7E1DC` | Cards, nav, containers, dividers |
+| `outline` / `outlineVariant` | `#89726D` / `#DCC0BA` | Borders, dividers |
+| `error` / `errorContainer` | `#BA1A1A` / `#FFDAD6` | Error text and surfaces |
+
+Typography: Outfit for display/headline, Hanken Grotesk for body/label with defined line height and letter spacing; see `PRD.md` §5 for the full scale.
 
 ---
 
@@ -421,32 +426,36 @@ fun BookGrid(books: List<Book>) {
 
 Run this checklist after implementing each screen composable:
 
-- [ ] Every `Image` / placeholder `Box` has `Modifier.semantics { contentDescription = "..." }`
-- [ ] Every clickable non-Button element has `Modifier.semantics { role = Role.Button }`
-- [ ] Audio play/pause button: contentDescription updates based on play state
-- [ ] Service pills in ContactScreen: `role = Role.Checkbox` + `stateDescription`
-- [ ] No `clickable` on a `Box` without `role` semantics
-- [ ] `AnimatedEqualizer` respects `prefersReducedMotion()`
-- [ ] Form validation errors surfaced via `OutlinedTextField(isError = true, supportingText = { ... })`
-- [ ] All `Text` contrast ratios checked against LuminaColors (deepBrown on cream = ✅)
+- [x] Every `Image` / placeholder `Box` has `Modifier.semantics { contentDescription = "..." }`
+- [x] Every clickable non-Button element has the correct `Role` (nav items and filter chips use `stateDescription`; chips use `Role.RadioButton`, service pills `Role.Checkbox`)
+- [x] Audio play/pause contentDescription updates with state; scrubber exposes time via `stateDescription`
+- [x] Focus rings via `Modifier.focusRing(...)` on nav, chips, language toggle, buttons and inputs (plus CSS `:focus-visible`)
+- [x] All `clickable` surfaces carry role semantics
+- [x] `prefersReducedMotion()` gates equalizer, card lift/content size, chip/pill/button color animations, smooth scroll (JS + CSS) and `Navigator` animations
+- [x] Form validation errors use `isError`/supporting text plus `LiveRegionMode.Polite`; success message is a live region
+- [x] `Text` contrast checked against reference token pairs (CR7.1 fixed active nav to `onPrimaryContainer`) — see `CR-AUDIT.md` §7
+- [ ] Manual browser smoke still required: tab order, screen reader announcements and responsive screenshots
 
 ---
 
 ## 10. Build & Run Commands
 
 ```bash
-# Start development server (hot reload)
+# Start development server (manual smoke — still pending in CR7)
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 
-# Production build (outputs to composeApp/build/dist/wasmJs/productionExecutable/)
+# Production build (PASS in CR7.1; webpack size/devtool warnings only)
 ./gradlew :composeApp:wasmJsBrowserDistribution
 
-# Check for compilation errors (fast feedback, no browser launch)
-./gradlew :composeApp:compileProductionExecutableKotlinWasmJs
+# Fast compile gate (PASS in CR7.1)
+./gradlew :composeApp:compileKotlinWasmJs
 
-# Run all common tests
+# Preferred compile alias from older phases; no test source sets exist yet
+./gradlew :composeApp:compileProductionExecutableKotlinWasmJs
 ./gradlew :composeApp:wasmJsTest
 ```
+
+CR7.1 evidence: 33/33 referenced assets resolve in `composeApp/build/dist/wasmJs/productionExecutable/`; zero HEIF in the bundle. See `CR-AUDIT.md` §7.
 
 ---
 
@@ -485,7 +494,8 @@ Run this checklist after implementing each screen composable:
 - Refer to section ID mapping (SKILL.md section 6) to link PRD sections to code
 
 **After completing each prompt:**
-- Run `./gradlew :composeApp:compileProductionExecutableKotlinWasmJs` — zero errors required
-- Run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` — visual check in browser
+- Run `./gradlew :composeApp:compileKotlinWasmJs` — zero errors required (alias: `compileProductionExecutableKotlinWasmJs`)
+- Run `./gradlew :composeApp:wasmJsBrowserDistribution` — production bundle, verify assets
+- Run `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` — visual/keyboard check in browser
 - Verify accessibility checklist (section 9) for any new screen composable
 - Commit using Conventional Commits format (RULES.md R8.1)

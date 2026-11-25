@@ -39,6 +39,7 @@ import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.focusRing
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 
 @Composable
@@ -216,6 +217,7 @@ private fun LanguageToggle(
     Surface(
         modifier = modifier
             .clickable { onToggle() }
+            .focusRing(RoundedCornerShape(LuminaDimens.cornerRadius.pill))
             .semantics {
                 role = Role.Button
                 contentDescription = BioStrings.TOGGLE_DESCRIPTION

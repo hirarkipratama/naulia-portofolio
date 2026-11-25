@@ -4,7 +4,8 @@ import kotlinx.browser.document
 
 private const val LUMINA_FONTS_HREF =
     "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
-private const val FONT_LINK_SELECTOR = "link[data-naulia-font='lumina']"
+private const val FONT_LINK_SELECTOR =
+    "link[data-naulia-font='lumina'], link[href*='family=Hanken+Grotesk']"
 
 actual fun injectLuminaFonts() {
     if (document.querySelector(FONT_LINK_SELECTOR) != null) return
