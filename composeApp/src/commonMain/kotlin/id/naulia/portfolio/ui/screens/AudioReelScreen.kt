@@ -103,7 +103,7 @@ private const val AUDIO_DESKTOP_COLUMNS = 2
 private const val TRACK_CARD_WEIGHT = 1f
 
 private object AudioReelStrings {
-    const val EYEBROW = "🎙️ REEL SUARA & BUKU SUARA"
+    const val EYEBROW = "REEL SUARA & BUKU SUARA"
     const val TITLE = "Karya Pilihan Buku Suara & VO"
     const val SUBTITLE =
         "Penceritaan imersif, karakter suara animasi, dan narasi edukatif untuk imajinasi anak-anak."

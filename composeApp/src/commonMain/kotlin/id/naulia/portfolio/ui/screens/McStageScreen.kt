@@ -180,7 +180,7 @@ private const val METRIC_WEIGHT = 1f
 private const val EVENT_WEIGHT = 1f
 
 private object McStageStrings {
-    const val EYEBROW = "🎙️ MC PANGGUNG & MODERATOR ACARA"
+    const val EYEBROW = "MC PANGGUNG & MODERATOR ACARA"
     const val TITLE = "Menghangatkan Panggung dengan Antusiasme & Energi"
     const val SUBTITLE =
         "Menjaga auditorium berisi 500+ audiens tetap antusias, ceria, dan penasaran lewat pemanduan yang interaktif dan penuh empati."

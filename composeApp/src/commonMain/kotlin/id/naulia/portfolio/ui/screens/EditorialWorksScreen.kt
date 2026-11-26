@@ -114,7 +114,7 @@ private const val DESKTOP_COLUMNS = 3
 private const val BOOK_WEIGHT = 1f
 
 private object EditorialWorksStrings {
-    const val EYEBROW = "📖 LITERATUR ANAK & SAINS"
+    const val EYEBROW = "LITERATUR ANAK & SAINS"
     const val TITLE = "Pilihan Karya Editorial & Buku"
     const val SUBTITLE =
         "Dari kurasi konsep ilmiah hingga ritme penuturan karakter—membidani buku-buku berharga bagi generasi penerus."

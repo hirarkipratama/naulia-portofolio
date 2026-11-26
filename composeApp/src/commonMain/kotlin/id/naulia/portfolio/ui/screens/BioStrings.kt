@@ -25,7 +25,7 @@ object BioStrings {
     const val TOGGLE_DESCRIPTION = "Alihkan bahasa konten antara Bahasa Indonesia dan English"
     const val TOGGLE_STATE_BAHASA = "Bahasa Indonesia aktif"
     const val TOGGLE_STATE_ENGLISH = "Bahasa Inggris aktif"
-    const val EYEBROW = "💡 FILOSOFI EDITORIAL"
+    const val EYEBROW = "FILOSOFI EDITORIAL"
     const val ATTRIBUTION = "— Naulia Zahra (Editor Buku Anak & Pemandu Panggung)"
 
     private val capabilities = listOf(
