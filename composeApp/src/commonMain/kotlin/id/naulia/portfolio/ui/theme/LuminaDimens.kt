@@ -58,7 +58,7 @@ object LuminaDimens {
     }
 
     object size {
-        val topBarHeight = 64.dp
+        val topBarHeight = 80.dp
         val bottomBarHeight = 64.dp
         val cardElevation = elevation.level1
         val barElevation = elevation.level2

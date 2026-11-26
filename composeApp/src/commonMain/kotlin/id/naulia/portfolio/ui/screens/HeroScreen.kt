@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -87,10 +88,12 @@ fun HeroScreen(
             .fillMaxWidth()
             .heightIn(min = LuminaDimens.size.heroMinHeight)
             .background(backgroundBrush),
+        contentAlignment = Alignment.Center,
     ) {
         if (isMobile) {
             Column(
                 modifier = Modifier
+                    .widthIn(max = LuminaDimens.maxContentWidth)
                     .fillMaxWidth()
                     .padding(
                         horizontal = LuminaDimens.margin.mobile,
@@ -104,11 +107,13 @@ fun HeroScreen(
         } else {
             Row(
                 modifier = Modifier
+                    .widthIn(max = LuminaDimens.maxContentWidth)
                     .fillMaxWidth()
                     .padding(
                         horizontal = LuminaDimens.margin.desktop,
                         vertical = LuminaDimens.spacing.xl,
                     ),
+                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 HeroCopy(navigator = navigator, modifier = Modifier.weight(HERO_TEXT_WEIGHT))

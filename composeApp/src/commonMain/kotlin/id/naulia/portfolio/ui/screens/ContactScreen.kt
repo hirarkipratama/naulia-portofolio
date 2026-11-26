@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -52,6 +53,7 @@ import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.rememberHorizontalMargin
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 import id.naulia.portfolio.ui.theme.focusRing
 import id.naulia.portfolio.viewmodel.ContactViewModel
@@ -67,14 +69,16 @@ fun ContactScreen(
     val uiState by contactViewModel.uiState.collectAsState()
     val colors = LocalLuminaColors.current
     val isMobile = rememberIsMobile()
+    val horizontalMargin = rememberHorizontalMargin()
     val panelShape = RoundedCornerShape(LuminaDimens.cornerRadius.card)
     val panelPadding = if (isMobile) LuminaDimens.spacing.md else LuminaDimens.spacing.xl
 
     Surface(
         modifier = modifier
+            .widthIn(max = LuminaDimens.maxContentWidth)
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.margin.mobile,
+                horizontal = horizontalMargin,
                 vertical = LuminaDimens.spacing.xl,
             )
             .shadow(

@@ -154,6 +154,7 @@ private fun SectionAnchor(
                     offsetPx = offsetPx.toInt(),
                 )
             },
+        contentAlignment = Alignment.Center,
     ) {
         content()
     }

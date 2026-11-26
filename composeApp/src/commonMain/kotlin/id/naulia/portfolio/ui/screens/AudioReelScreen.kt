@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -24,6 +25,8 @@ import id.naulia.portfolio.ui.components.SectionHeader
 import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
+import id.naulia.portfolio.ui.theme.rememberGridGutter
+import id.naulia.portfolio.ui.theme.rememberHorizontalMargin
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 import id.naulia.portfolio.viewmodel.AudioViewModel
 
@@ -36,6 +39,8 @@ fun AudioReelScreen(
     val reducedMotion = remember { prefersReducedMotion() }
     val colors = LocalLuminaColors.current
     val isMobile = rememberIsMobile()
+    val horizontalMargin = rememberHorizontalMargin()
+    val gridGutter = rememberGridGutter()
     val columns = if (isMobile) SINGLE_COLUMN else AUDIO_DESKTOP_COLUMNS
     val trackRows = remember(uiState.filteredTracks, columns) {
         uiState.filteredTracks.chunked(columns)
@@ -43,9 +48,10 @@ fun AudioReelScreen(
 
     Column(
         modifier = modifier
+            .widthIn(max = LuminaDimens.maxContentWidth)
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.margin.mobile,
+                horizontal = horizontalMargin,
                 vertical = LuminaDimens.spacing.xl,
             ),
     ) {
@@ -77,7 +83,7 @@ fun AudioReelScreen(
         trackRows.forEach { rowTracks ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.gutter.desktop),
+                horizontalArrangement = Arrangement.spacedBy(gridGutter),
             ) {
                 rowTracks.forEach { track ->
                     AudioTrackCard(
@@ -91,6 +97,9 @@ fun AudioReelScreen(
                         onSeek = { seconds -> audioViewModel.seekTo(seconds) },
                         modifier = Modifier.weight(TRACK_CARD_WEIGHT),
                     )
+                }
+                repeat(columns - rowTracks.size) {
+                    Spacer(Modifier.weight(TRACK_CARD_WEIGHT))
                 }
             }
             Spacer(Modifier.height(LuminaDimens.spacing.md))

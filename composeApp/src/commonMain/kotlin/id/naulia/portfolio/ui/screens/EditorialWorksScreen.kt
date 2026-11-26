@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -27,6 +28,8 @@ import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.rememberGridGutter
+import id.naulia.portfolio.ui.theme.rememberHorizontalMargin
 import id.naulia.portfolio.ui.theme.rememberWindowWidth
 import id.naulia.portfolio.viewmodel.CmsViewModel
 
@@ -38,6 +41,8 @@ fun EditorialWorksScreen(
     val contentState by cmsViewModel.contentState.collectAsState()
     val colors = LocalLuminaColors.current
     val windowWidth = rememberWindowWidth()
+    val horizontalMargin = rememberHorizontalMargin()
+    val gridGutter = rememberGridGutter()
     val columnCount = remember(windowWidth) {
         when {
             windowWidth < LuminaDimens.Breakpoints.mobile -> NARROW_COLUMNS
@@ -52,10 +57,11 @@ fun EditorialWorksScreen(
 
     Column(
         modifier = modifier
+            .widthIn(max = LuminaDimens.maxContentWidth)
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.margin.mobile,
-                vertical = LuminaDimens.spacing.xxl,
+                horizontal = horizontalMargin,
+                vertical = LuminaDimens.spacing.xl,
             ),
     ) {
         SectionHeader(
@@ -93,7 +99,7 @@ fun EditorialWorksScreen(
         bookRows.forEach { rowBooks ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(LuminaDimens.gutter.desktop),
+                horizontalArrangement = Arrangement.spacedBy(gridGutter),
                 verticalAlignment = Alignment.Top,
             ) {
                 rowBooks.forEach { book ->
@@ -101,6 +107,9 @@ fun EditorialWorksScreen(
                         book = book,
                         modifier = Modifier.weight(BOOK_WEIGHT),
                     )
+                }
+                repeat(columnCount - rowBooks.size) {
+                    Spacer(Modifier.weight(BOOK_WEIGHT))
                 }
             }
             Spacer(Modifier.height(LuminaDimens.spacing.md))

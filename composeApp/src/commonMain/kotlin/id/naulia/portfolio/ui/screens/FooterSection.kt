@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -56,14 +57,19 @@ fun FooterSection(
         shadowElevation = LuminaDimens.elevation.level1,
         shape = RectangleShape,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = horizontalPadding,
-                    vertical = LuminaDimens.spacing.xl,
-                ),
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = LuminaDimens.maxContentWidth)
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = horizontalPadding,
+                        vertical = LuminaDimens.spacing.xl,
+                    ),
+            ) {
             if (isMobile) {
                 FooterBrand(navigator = navigator, contactConfig = contactConfig)
                 Spacer(Modifier.height(LuminaDimens.spacing.lg))
@@ -96,6 +102,7 @@ fun FooterSection(
             FooterDivider()
             Spacer(Modifier.height(LuminaDimens.spacing.md))
             FooterBottomRow(navigator = navigator, isMobile = isMobile)
+            }
         }
     }
 }

@@ -1,12 +1,14 @@
 package id.naulia.portfolio.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
@@ -55,18 +57,23 @@ fun TopNavBar(
         shadowElevation = LuminaDimens.elevation.level1,
         shape = MaterialRectangleShape,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = if (isCompact) {
-                        LuminaDimens.margin.mobile
-                    } else {
-                        LuminaDimens.margin.desktop
-                    },
-                ),
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
+            Row(
+                modifier = Modifier
+                    .widthIn(max = LuminaDimens.maxContentWidth)
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = if (isCompact) {
+                            LuminaDimens.margin.mobile
+                        } else {
+                            LuminaDimens.margin.desktop
+                        },
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = TopNavStrings.WORDMARK,
@@ -191,6 +198,7 @@ fun TopNavBar(
                     icon = LuminaIcons.Mail,
                 )
             }
+        }
         }
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
 import id.naulia.portfolio.ui.theme.focusRing
+import id.naulia.portfolio.ui.theme.rememberHorizontalMargin
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 
 @Composable
@@ -47,15 +49,17 @@ fun AboutScreen(
     modifier: Modifier = Modifier,
 ) {
     val isMobile = rememberIsMobile()
+    val horizontalMargin = rememberHorizontalMargin()
     var isEnglish by remember { mutableStateOf(false) }
     val copy = if (isEnglish) BioStrings.english else BioStrings.bahasa
 
     Column(
         modifier = modifier
+            .widthIn(max = LuminaDimens.maxContentWidth)
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.margin.mobile,
-                vertical = LuminaDimens.spacing.xxl,
+                horizontal = horizontalMargin,
+                vertical = LuminaDimens.spacing.xl,
             ),
     ) {
         Row(

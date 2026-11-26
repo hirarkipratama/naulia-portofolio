@@ -17,3 +17,11 @@ fun rememberWindowWidth(): Dp {
 
 @Composable
 fun rememberIsMobile(): Boolean = rememberWindowWidth() < LuminaDimens.Breakpoints.tablet
+
+@Composable
+fun rememberHorizontalMargin(): Dp =
+    if (rememberIsMobile()) LuminaDimens.margin.mobile else LuminaDimens.margin.desktop
+
+@Composable
+fun rememberGridGutter(): Dp =
+    if (rememberIsMobile()) LuminaDimens.gutter.mobile else LuminaDimens.gutter.desktop

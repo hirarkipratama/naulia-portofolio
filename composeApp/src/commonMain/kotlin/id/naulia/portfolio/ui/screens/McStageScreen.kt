@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.rememberHorizontalMargin
 import id.naulia.portfolio.ui.theme.rememberIsMobile
 import id.naulia.portfolio.viewmodel.CmsViewModel
 
@@ -37,6 +39,7 @@ fun McStageScreen(
     val contentState by cmsViewModel.contentState.collectAsState()
     val colors = LocalLuminaColors.current
     val isMobile = rememberIsMobile()
+    val horizontalMargin = rememberHorizontalMargin()
     val metrics = remember(contentState.metrics) { contentState.metrics.toDisplayMetrics() }
     val featuredEvents = remember(contentState.events) {
         contentState.events.take(FEATURED_EVENT_COUNT)
@@ -44,10 +47,11 @@ fun McStageScreen(
 
     Column(
         modifier = modifier
+            .widthIn(max = LuminaDimens.maxContentWidth)
             .fillMaxWidth()
             .padding(
-                horizontal = LuminaDimens.margin.mobile,
-                vertical = LuminaDimens.spacing.xxl,
+                horizontal = horizontalMargin,
+                vertical = LuminaDimens.spacing.xl,
             ),
     ) {
         SectionHeader(
