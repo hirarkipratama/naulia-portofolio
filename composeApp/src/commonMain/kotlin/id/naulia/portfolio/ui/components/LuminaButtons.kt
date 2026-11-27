@@ -11,7 +11,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -102,7 +101,6 @@ fun LuminaPrimaryButton(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .heightIn(min = LuminaDimens.size.buttonHeight)
                 .padding(
                     horizontal = LuminaDimens.size.buttonHorizontalPadding,
@@ -176,7 +174,6 @@ fun LuminaSecondaryButton(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
                 .heightIn(min = LuminaDimens.size.buttonHeight)
                 .padding(
                     horizontal = LuminaDimens.size.buttonHorizontalPadding,

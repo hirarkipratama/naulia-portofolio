@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import id.naulia.portfolio.image.rememberImageBitmap
 import id.naulia.portfolio.navigation.NavSection
 import id.naulia.portfolio.navigation.Navigator
@@ -55,17 +57,32 @@ import id.naulia.portfolio.ui.icons.LuminaIcons
 import id.naulia.portfolio.ui.theme.LuminaDimens
 import id.naulia.portfolio.ui.theme.LocalLuminaColors
 import id.naulia.portfolio.ui.theme.LocalLuminaTypeScale
+import id.naulia.portfolio.ui.theme.LuminaTheme
 import id.naulia.portfolio.ui.theme.rememberIsMobile
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HeroScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    HeroScreenContent(
+        navigator = navigator,
+        isMobile = rememberIsMobile(),
+        reducedMotion = remember { prefersReducedMotion() },
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun HeroScreenContent(
+    navigator: Navigator,
+    isMobile: Boolean,
+    reducedMotion: Boolean,
+    modifier: Modifier = Modifier,
+) {
     val colors = LocalLuminaColors.current
-    val isMobile = rememberIsMobile()
-    val reducedMotion = remember { prefersReducedMotion() }
     val transition = rememberInfiniteTransition()
     val animatedAlpha by transition.animateFloat(
         initialValue = HeroStrings.MIN_INDICATOR_ALPHA,
@@ -102,7 +119,11 @@ fun HeroScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 HeroPortrait(modifier = Modifier.padding(bottom = LuminaDimens.spacing.lg))
-                HeroCopy(navigator = navigator, modifier = Modifier.fillMaxWidth())
+                HeroCopy(
+                    navigator = navigator,
+                    isMobile = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
         } else {
             Row(
@@ -116,7 +137,11 @@ fun HeroScreen(
                 horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                HeroCopy(navigator = navigator, modifier = Modifier.weight(HERO_TEXT_WEIGHT))
+                HeroCopy(
+                    navigator = navigator,
+                    isMobile = false,
+                    modifier = Modifier.weight(HERO_TEXT_WEIGHT),
+                )
                 HeroPortrait(modifier = Modifier.weight(HERO_PORTRAIT_WEIGHT))
             }
         }
@@ -138,11 +163,11 @@ fun HeroScreen(
 @Composable
 private fun HeroCopy(
     navigator: Navigator,
+    isMobile: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalLuminaColors.current
     val type = LocalLuminaTypeScale.current
-    val isMobile = rememberIsMobile()
     val headline = remember(colors) {
         buildAnnotatedString {
             append(HeroStrings.HEADLINE_PREFIX)
@@ -169,6 +194,7 @@ private fun HeroCopy(
             text = HeroStrings.SUBHEADLINE,
             style = type.bodyLg.copy(fontWeight = FontWeight.Medium),
             color = colors.onSurfaceVariant,
+            modifier = Modifier.padding(top = 16.dp)
         )
         Spacer(Modifier.height(LuminaDimens.spacing.xs))
         Text(
@@ -180,6 +206,7 @@ private fun HeroCopy(
         Row(
             horizontalArrangement = Arrangement.spacedBy(LuminaDimens.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 8.dp)
         ) {
             LuminaPrimaryButton(
                 label = HeroStrings.PRIMARY_CTA,
@@ -292,6 +319,58 @@ private fun HeroPortrait(
                 color = colors.inverseOnSurface.copy(alpha = CAPTION_ALPHA),
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun HeroScreenMobilePreview() {
+    LuminaTheme {
+        HeroScreenContent(
+            navigator = Navigator(),
+            isMobile = true,
+            reducedMotion = false,
+            modifier = Modifier.width(390.dp),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HeroScreenMobileReducedMotionPreview() {
+    LuminaTheme {
+        HeroScreenContent(
+            navigator = Navigator(),
+            isMobile = true,
+            reducedMotion = true,
+            modifier = Modifier.width(390.dp),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HeroScreenDesktopPreview() {
+    LuminaTheme {
+        HeroScreenContent(
+            navigator = Navigator(),
+            isMobile = false,
+            reducedMotion = false,
+            modifier = Modifier.width(1280.dp),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HeroScreenDesktopReducedMotionPreview() {
+    LuminaTheme {
+        HeroScreenContent(
+            navigator = Navigator(),
+            isMobile = false,
+            reducedMotion = true,
+            modifier = Modifier.width(1280.dp),
+        )
     }
 }
 
